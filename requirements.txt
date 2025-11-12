@@ -13,3 +13,4 @@ Flask-Login==0.6.3         # Manejo de sesiones y autenticación
 Flask-SQLAlchemy==3.1.1    # ORM para bases de datos
 Flask-Migrate==4.0.5       # Migraciones de base de datos
 python-dotenv==1.0.0       # Variables de entorno
+gunicorn==23.0.0          # Servidor WSGI para producción
