@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroTrace - Preview del Nuevo Diseño</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #F8FAFC;
+            color: #0F172A;
+        }
+        
+        .preview-container {
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        
+        .preview-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .preview-header h1 {
+            font-size: 48px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 16px;
+        }
+        
+        .preview-header p {
+            font-size: 18px;
+            color: #64748B;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        
+        .feature-card {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            margin-bottom: 16px;
+        }
+        
+        .feature-card h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .feature-card p {
+            font-size: 14px;
+            color: #64748B;
+            line-height: 1.6;
+        }
+        
+        .screenshots {
+            margin-bottom: 40px;
+        }
+        
+        .screenshots h2 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+        
+        .screenshot-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        
+        .screenshot-box {
+            background: white;
+            padding: 16px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .screenshot-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #3B82F6;
+            margin-bottom: 12px;
+        }
+        
+        .screenshot-placeholder {
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 600;
+            color: #94A3B8;
+        }
+        
+        .color-palette {
+            background: white;
+            padding: 32px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 40px;
+        }
+        
+        .color-palette h2 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+        
+        .colors-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .color-box {
+            text-align: center;
+        }
+        
+        .color-swatch {
+            width: 100%;
+            height: 80px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .color-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: #0F172A;
+            margin-bottom: 4px;
+        }
+        
+        .color-hex {
+            font-size: 11px;
+            font-family: 'Courier New', monospace;
+            color: #64748B;
+        }
+        
+        .cta-section {
+            background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%);
+            padding: 48px;
+            border-radius: 24px;
+            text-align: center;
+            color: white;
+        }
+        
+        .cta-section h2 {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+        
+        .cta-section p {
+            font-size: 18px;
+            margin-bottom: 24px;
+            opacity: 0.9;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            padding: 14px 32px;
+            background: white;
+            color: #3B82F6;
+            font-weight: 700;
+            font-size: 16px;
+            border-radius: 12px;
+            text-decoration: none;
+            transition: transform 0.2s ease;
+        }
+        
+        .cta-button:hover {
+            transform: scale(1.05);
+        }
+        
+        @media (max-width: 768px) {
+            .screenshot-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="preview-container">
+        <!-- Header -->
+        <div class="preview-header">
+            <h1>AgroTrace v3.5 Pro</h1>
+            <p>Dashboard Profesional Rediseñado - Tipo Notion/Linear/Vercel</p>
+        </div>
+        
+        <!-- Features Grid -->
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-palette"></i>
+                </div>
+                <h3>Sin Espacios Blancos</h3>
+                <p>Layout completamente integrado, sin gaps entre sidebar y contenido principal. Diseño limpio y profesional.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-sidebar"></i>
+                </div>
+                <h3>Sidebar Moderno</h3>
+                <p>Logo con gradiente, navegación por secciones, badges dinámicos y animaciones hover suaves.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-sparkles"></i>
+                </div>
+                <h3>Glassmorphism</h3>
+                <p>Topbar con efecto glass (backdrop-filter blur), sticky position, sin barra blanca flotante.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-moon"></i>
+                </div>
+                <h3>Dark Mode Perfecto</h3>
+                <p>Modo oscuro sin franjas blancas, contraste optimizado, persistente en localStorage.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fab fa-vuejs"></i>
+                </div>
+                <h3>Vue.js 3 Integrado</h3>
+                <p>Componentes reactivos con CDN, delimitadores personalizados, compatible con Jinja2.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h3>100% Responsive</h3>
+                <p>Mobile-first design, sidebar colapsable, adaptativo en tablet y desktop.</p>
+            </div>
+        </div>
+        
+        <!-- Color Palette -->
+        <div class="color-palette">
+            <h2>Paleta de Colores Profesional</h2>
+            
+            <h3 style="font-size: 16px; margin-bottom: 16px; color: #64748B;">Modo Claro</h3>
+            <div class="colors-row">
+                <div class="color-box">
+                    <div class="color-swatch" style="background: #F8FAFC;"></div>
+                    <div class="color-name">Background</div>
+                    <div class="color-hex">#F8FAFC</div>
+                </div>
+                <div class="color-box">
+                    <div class="color-swatch" style="background: #FFFFFF;"></div>
+                    <div class="color-name">Cards</div>
+                    <div class="color-hex">#FFFFFF</div>
+                </div>
+                <div class="color-box">
+                    <div class="color-swatch" style="background: #3B82F6;"></div>
+                    <div class="color-name">Primary</div>
+                    <div class="color-hex">#3B82F6</div>
+                </div>
+                <div class="color-box">
+                    <div class="color-swatch" style="background: #10B981;"></div>
+                    <div class="color-name">Success</div>
+                    <div class="color-hex">#10B981</div>
+                </div>
+                <div class="color-box">
+                    <div class="color-swatch" style="background: #8B5CF6;"></div>
+                    <div class="color-name">Accent</div>
+                    <div class="color-hex">#8B5CF6</div>
+                </div>
+            </div>
+            
+            <h3 style="font-size: 16px; margin: 24px 0 16px; color: #64748B;">Modo Oscuro</h3>
+            <div class="colors-row">
+                <div class="color-box">
+                    <div class="color-swatch" style="background: #0D1117;"></div>
+                    <div class="color-name">Background</div>
+                    <div class="color-hex">#0D1117</div>
+                </div>
+                <div class="color-box">
+                    <div class="color-swatch" style="background: #161B22;"></div>
+                    <div class="color-name">Cards</div>
+                    <div class="color-hex">#161B22</div>
+                </div>
+                <div class="color-box">
+                    <div class="color-swatch" style="background: #0B0E14;"></div>
+                    <div class="color-name">Sidebar</div>
+                    <div class="color-hex">#0B0E14</div>
+                </div>
+                <div class="color-box">
+                    <div class="color-swatch" style="background: #E5E7EB;"></div>
+                    <div class="color-name">Text</div>
+                    <div class="color-hex">#E5E7EB</div>
+                </div>
+                <div class="color-box">
+                    <div class="color-swatch" style="background: #3B82F6;"></div>
+                    <div class="color-name">Primary</div>
+                    <div class="color-hex">#3B82F6</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Screenshots Preview -->
+        <div class="screenshots">
+            <h2>Vista Previa del Diseño</h2>
+            <div class="screenshot-grid">
+                <div class="screenshot-box">
+                    <div class="screenshot-label">💡 Modo Claro</div>
+                    <div class="screenshot-placeholder">
+                        <div style="text-align: center;">
+                            <i class="fas fa-sun" style="font-size: 48px; color: #3B82F6; margin-bottom: 16px;"></i>
+                            <div>Background #F8FAFC</div>
+                            <div style="font-size: 14px; color: #94A3B8; margin-top: 8px;">Limpio y profesional</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="screenshot-box">
+                    <div class="screenshot-label">🌙 Modo Oscuro</div>
+                    <div class="screenshot-placeholder" style="background: linear-gradient(135deg, #0D1117 0%, #161B22 100%);">
+                        <div style="text-align: center; color: #E5E7EB;">
+                            <i class="fas fa-moon" style="font-size: 48px; color: #3B82F6; margin-bottom: 16px;"></i>
+                            <div>Background #0D1117</div>
+                            <div style="font-size: 14px; color: #9CA3AF; margin-top: 8px;">Sin franjas blancas</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- CTA Section -->
+        <div class="cta-section">
+            <h2>¡Listo para Usar!</h2>
+            <p>Copia layout_new.html a layout.html y reinicia Flask para ver el nuevo diseño</p>
+            <a href="#" class="cta-button">
+                <i class="fas fa-rocket" style="margin-right: 8px;"></i>
+                Implementar Ahora
+            </a>
+        </div>
+    </div>
+</body>
+</html>

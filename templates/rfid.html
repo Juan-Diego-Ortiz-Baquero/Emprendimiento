@@ -1,0 +1,569 @@
+{% extends "layout.html" %}
+
+{% block title %}Gestión de RFID - {{ app_name }}{% endblock %}
+
+{% block content %}
+<!-- RFID Management Module -->
+<div id="rfidApp" v-cloak>
+    <!-- Header Section -->
+    <div class="page-header" style="margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h1 style="font-size: 28px; font-weight: 700; color: var(--color-text-primary); margin-bottom: 0.5rem;">
+                    <i class="fas fa-wifi" style="color: #3B82F6; margin-right: 0.5rem;"></i>
+                    Gestión de Lecturas RFID
+                </h1>
+                <p style="color: var(--color-text-secondary); font-size: 14px;">
+                    Monitorea y gestiona todas las lecturas de identificación RFID en tiempo real
+                </p>
+            </div>
+            <button @click="openAddModal()" class="btn btn-primary" style="padding: 12px 24px; font-size: 14px; font-weight: 600;">
+                <i class="fas fa-plus" style="margin-right: 8px;"></i>
+                Registrar Lectura
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <!-- Total Readings Card -->
+        <div class="stat-card stat-card-primary">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-signal" style="color: white; font-size: 20px;"></i>
+                </div>
+                <div style="display: flex; align-items: center; gap: 4px; padding: 4px 10px; background: rgba(59, 130, 246, 0.1); border-radius: 20px;">
+                    <i class="fas fa-chart-line" style="color: #3B82F6; font-size: 10px;"></i>
+                    <span style="color: #3B82F6; font-size: 12px; font-weight: 600;">Total</span>
+                </div>
+            </div>
+            <div style="font-size: 36px; font-weight: 700; color: var(--color-text-primary); margin-bottom: 0.5rem;">[[ totalReadings ]]</div>
+            <div style="color: var(--color-text-secondary); font-size: 14px; font-weight: 500;">Total de Lecturas</div>
+            <div style="color: var(--color-text-tertiary); font-size: 12px; margin-top: 4px;">Registros históricos</div>
+        </div>
+
+        <!-- Successful Readings Card -->
+        <div class="stat-card stat-card-success">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-check-circle" style="color: white; font-size: 20px;"></i>
+                </div>
+                <div style="display: flex; align-items: center; gap: 4px; padding: 4px 10px; background: rgba(16, 185, 129, 0.1); border-radius: 20px;">
+                    <i class="fas fa-percentage" style="color: #10B981; font-size: 10px;"></i>
+                    <span style="color: #10B981; font-size: 12px; font-weight: 600;">[[ successRate ]]%</span>
+                </div>
+            </div>
+            <div style="font-size: 36px; font-weight: 700; color: var(--color-text-primary); margin-bottom: 0.5rem;">[[ successfulReadings ]]</div>
+            <div style="color: var(--color-text-secondary); font-size: 14px; font-weight: 500;">Lecturas Exitosas</div>
+            <div style="color: var(--color-text-tertiary); font-size: 12px; margin-top: 4px;">Sin errores</div>
+        </div>
+
+        <!-- Today Readings Card -->
+        <div class="stat-card stat-card-info">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #06B6D4 0%, #0891B2 100%); display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-calendar-day" style="color: white; font-size: 20px;"></i>
+                </div>
+                <div style="display: flex; align-items: center; gap: 4px; padding: 4px 10px; background: rgba(6, 182, 212, 0.1); border-radius: 20px;">
+                    <i class="fas fa-clock" style="color: #06B6D4; font-size: 10px;"></i>
+                    <span style="color: #06B6D4; font-size: 12px; font-weight: 600;">Hoy</span>
+                </div>
+            </div>
+            <div style="font-size: 36px; font-weight: 700; color: var(--color-text-primary); margin-bottom: 0.5rem;">[[ todayReadings ]]</div>
+            <div style="color: var(--color-text-secondary); font-size: 14px; font-weight: 500;">Lecturas de Hoy</div>
+            <div style="color: var(--color-text-tertiary); font-size: 12px; margin-top: 4px;">Últimas 24 horas</div>
+        </div>
+
+        <!-- Error Readings Card -->
+        <div class="stat-card stat-card-danger">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-exclamation-triangle" style="color: white; font-size: 20px;"></i>
+                </div>
+                <div style="display: flex; align-items: center; gap: 4px; padding: 4px 10px; background: rgba(239, 68, 68, 0.1); border-radius: 20px;">
+                    <i class="fas fa-bug" style="color: #EF4444; font-size: 10px;"></i>
+                    <span style="color: #EF4444; font-size: 12px; font-weight: 600;">Alertas</span>
+                </div>
+            </div>
+            <div style="font-size: 36px; font-weight: 700; color: var(--color-text-primary); margin-bottom: 0.5rem;">[[ errorReadings ]]</div>
+            <div style="color: var(--color-text-secondary); font-size: 14px; font-weight: 500;">Errores de Lectura</div>
+            <div style="color: var(--color-text-tertiary); font-size: 12px; margin-top: 4px;">Requieren atención</div>
+        </div>
+    </div>
+
+    <!-- Search and Filters Bar -->
+    <div class="card animated-slide-up" style="margin-top: 2rem;">
+        <div class="card-body" style="padding: 1.5rem;">
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+                <!-- Enhanced Search Input -->
+                <div style="flex: 1; min-width: 280px; max-width: 450px;">
+                    <div class="form-group" style="margin: 0;">
+                        <div class="search-wrapper" style="position: relative;">
+                            <i class="fas fa-search" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #667eea; font-size: 16px; z-index: 1;"></i>
+                            <input 
+                                type="text" 
+                                v-model="searchQuery" 
+                                @input="performSearch"
+                                class="form-control search-input-enhanced"
+                                placeholder="Buscar por RFID, animal, ubicación..."
+                                style="padding-left: 44px; padding-right: 40px; height: 48px; border-radius: 12px; border: 2px solid var(--color-border); font-size: 14px; transition: all 0.3s ease;"
+                            >
+                            <button 
+                                v-if="searchQuery" 
+                                @click="clearSearch()" 
+                                class="search-clear-btn"
+                                style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 28px; height: 28px; border-radius: 50%; background: var(--color-bg-tertiary); border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; z-index: 1;"
+                            >
+                                <i class="fas fa-times" style="font-size: 12px; color: var(--color-text-tertiary);"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <!-- Status Filter -->
+                    <div class="form-group" style="margin: 0;">
+                        <select v-model="filterStatus" @change="applyFilters()" class="form-select" style="min-width: 160px; height: 48px; border-radius: 12px; border: 2px solid var(--color-border); font-size: 14px; padding: 0 16px;">
+                            <option value="">Todos los estados</option>
+                            <option value="success">✅ Exitoso</option>
+                            <option value="danger">❌ Error</option>
+                            <option value="warning">⚠️ Señal Débil</option>
+                        </select>
+                    </div>
+
+                    <!-- Event Type Filter -->
+                    <div class="form-group" style="margin: 0;">
+                        <select v-model="filterEventType" @change="applyFilters()" class="form-select" style="min-width: 160px; height: 48px; border-radius: 12px; border: 2px solid var(--color-border); font-size: 14px; padding: 0 16px;">
+                            <option value="">Todos los eventos</option>
+                            <option value="Entrada">🚪 Entrada</option>
+                            <option value="Salida">🚪 Salida</option>
+                            <option value="Pesaje">⚖️ Pesaje</option>
+                            <option value="Control">📋 Control</option>
+                            <option value="Alimentación">🍽️ Alimentación</option>
+                            <option value="Ordeño">💧 Ordeño</option>
+                        </select>
+                    </div>
+
+                    <!-- Reset Button -->
+                    <button @click="resetFilters()" class="btn btn-outline" style="height: 48px; padding: 0 20px; border-radius: 12px; font-size: 14px; font-weight: 600;">
+                        <i class="fas fa-redo" style="margin-right: 8px;"></i>
+                        Limpiar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RFID Readings Table -->
+    <div class="card" style="margin-top: 2rem;">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 class="card-title" style="display: flex; align-items: center; gap: 0.5rem; margin: 0;">
+                <i class="fas fa-table"></i>
+                Lecturas RFID
+            </h3>
+            <span class="badge badge-primary">[[ filteredReadings.length ]] lecturas</span>
+        </div>
+        <div class="card-body" style="padding: 0;">
+            <!-- Loading State -->
+            <div v-if="loading" style="padding: 3rem; text-align: center;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 48px; color: var(--color-primary); margin-bottom: 1rem;"></i>
+                <p style="color: var(--color-text-secondary);">Cargando lecturas...</p>
+            </div>
+
+            <!-- Table -->
+            <div v-else-if="!isEmpty" class="table-responsive">
+                <table class="table" style="margin: 0;">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">ID</th>
+                            <th>Código RFID</th>
+                            <th>Animal</th>
+                            <th>Ubicación</th>
+                            <th>Evento</th>
+                            <th>Lector</th>
+                            <th>Fecha/Hora</th>
+                            <th>Estado</th>
+                            <th>Señal</th>
+                            <th style="width: 150px; text-align: center;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="reading in paginatedReadings" :key="reading.id">
+                            <td style="font-weight: 600; color: var(--color-text-secondary);">#[[ reading.id ]]</td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <div style="width: 32px; height: 32px; border-radius: 8px; background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-wifi" style="color: white; font-size: 14px;"></i>
+                                    </div>
+                                    <span style="font-family: 'Courier New', monospace; font-weight: 600; font-size: 13px;">[[ reading.rfid_code ]]</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div style="width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; color: white;" :style="{ background: reading.avatarColor }">
+                                        [[ reading.animal_name.charAt(0) ]]
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 600; color: var(--color-text-primary);">[[ reading.animal_name ]]</div>
+                                        <div style="font-size: 12px; color: var(--color-text-tertiary);">[[ reading.breed ]]</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-map-marker-alt" style="color: var(--color-text-tertiary); font-size: 12px;"></i>
+                                    <span style="font-size: 13px;">[[ reading.location ]]</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge" :style="{ background: reading.event_type.color + '20', color: reading.event_type.color, border: '1px solid ' + reading.event_type.color }">
+                                    <i :class="'fas fa-' + reading.event_type.icon" style="margin-right: 4px;"></i>
+                                    [[ reading.event_type.name ]]
+                                </span>
+                            </td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-microchip" style="color: var(--color-text-tertiary); font-size: 12px;"></i>
+                                    <span style="font-size: 13px; font-family: 'Courier New', monospace;">[[ reading.reader_id ]]</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="font-size: 13px;">
+                                    <div style="color: var(--color-text-primary); font-weight: 600;">[[ reading.scan_date ]]</div>
+                                    <div style="color: var(--color-text-tertiary); font-size: 12px;">[[ reading.scan_time ]]</div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge" :class="'badge-' + reading.status.class">
+                                    <i :class="'fas fa-' + reading.status.icon" style="margin-right: 4px;"></i>
+                                    [[ reading.status.name ]]
+                                </span>
+                            </td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <div style="flex: 1; height: 6px; background: var(--color-bg-tertiary); border-radius: 3px; overflow: hidden;">
+                                        <div :style="{ width: reading.signal_strength + '%', height: '100%', background: getSignalColor(reading.signal_strength), transition: 'width 0.3s ease' }"></div>
+                                    </div>
+                                    <span style="font-size: 12px; font-weight: 600; color: var(--color-text-secondary); min-width: 35px;">[[ reading.signal_strength ]]%</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="display: flex; gap: 8px; justify-content: center;">
+                                    <button @click="viewReading(reading)" class="btn-icon-action" 
+                                        style="width: 36px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); border: none; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);"
+                                        title="Ver detalles"
+                                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(59, 130, 246, 0.5)'"
+                                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(59, 130, 246, 0.3)'">
+                                        <i class="fas fa-eye" style="font-size: 14px;"></i>
+                                    </button>
+                                    <button @click="editReading(reading)" class="btn-icon-action" 
+                                        style="width: 36px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); border: none; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);"
+                                        title="Editar"
+                                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(245, 158, 11, 0.5)'"
+                                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(245, 158, 11, 0.3)'">
+                                        <i class="fas fa-edit" style="font-size: 14px;"></i>
+                                    </button>
+                                    <button @click="deleteReading(reading)" class="btn-icon-action" 
+                                        style="width: 36px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); border: none; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);"
+                                        title="Eliminar"
+                                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(239, 68, 68, 0.5)'"
+                                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(239, 68, 68, 0.3)'">
+                                        <i class="fas fa-trash" style="font-size: 14px;"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Empty State -->
+            <div v-else style="padding: 4rem 2rem; text-align: center;">
+                <div style="display: inline-flex; padding: 1.5rem; background: var(--color-bg-tertiary); border-radius: 50%; margin-bottom: 1rem;">
+                    <i class="fas fa-wifi" style="font-size: 48px; color: var(--color-text-tertiary);"></i>
+                </div>
+                <h3 style="font-size: 18px; font-weight: 600; color: var(--color-text-primary); margin-bottom: 0.5rem;">
+                    No se encontraron lecturas
+                </h3>
+                <p style="color: var(--color-text-secondary); font-size: 14px; margin-bottom: 1.5rem;">
+                    No hay lecturas RFID que coincidan con tus criterios de búsqueda
+                </p>
+                <button @click="resetFilters()" class="btn btn-primary">
+                    <i class="fas fa-redo" style="margin-right: 8px;"></i>
+                    Limpiar filtros
+                </button>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div v-if="!isEmpty && totalPages > 1" class="card-footer" style="padding: 1.5rem; background: var(--color-bg-secondary); border-top: 1px solid var(--color-border);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                <div style="color: var(--color-text-secondary); font-size: 14px;">
+                    Mostrando [[ startIndex + 1 ]] - [[ Math.min(endIndex, filteredReadings.length) ]] de [[ filteredReadings.length ]] lecturas
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button 
+                        @click="changePage(currentPage - 1)" 
+                        :disabled="currentPage === 1"
+                        class="btn btn-outline"
+                        style="padding: 8px 16px; border-radius: 8px;"
+                    >
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button 
+                        v-for="page in displayedPages" 
+                        :key="page"
+                        @click="changePage(page)"
+                        :class="['btn', page === currentPage ? 'btn-primary' : 'btn-outline']"
+                        style="padding: 8px 16px; border-radius: 8px; min-width: 40px;"
+                    >
+                        [[ page ]]
+                    </button>
+                    <button 
+                        @click="changePage(currentPage + 1)" 
+                        :disabled="currentPage === totalPages"
+                        class="btn btn-outline"
+                        style="padding: 8px 16px; border-radius: 8px;"
+                    >
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Additional Styles -->
+<style>
+    /* Vue.js v-cloak directive */
+    [v-cloak] {
+        display: none !important;
+    }
+
+    /* Search input enhanced styles */
+    .search-input-enhanced:focus {
+        outline: none;
+        border-color: #667eea !important;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .search-clear-btn:hover {
+        background: #667eea !important;
+    }
+
+    .search-clear-btn:hover i {
+        color: white !important;
+    }
+
+    /* Table hover effects */
+    .table tbody tr {
+        transition: all 0.3s ease;
+    }
+
+    .table tbody tr:hover {
+        background: var(--color-bg-tertiary);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    /* Animations */
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animated-slide-up {
+        animation: slideUp 0.5s ease;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+        }
+        
+        .table-responsive {
+            overflow-x: auto;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .stats-grid {
+            grid-template-columns: 1fr !important;
+        }
+    }
+</style>
+
+<!-- Vue.js Application Logic -->
+<script>
+const { createApp } = Vue;
+
+createApp({
+    delimiters: ['[[', ']]'],
+    data() {
+        return {
+            // Data from backend
+            readings: {{ rfid_readings|tojson }},
+            
+            // Search and filters
+            searchQuery: '',
+            filterStatus: '',
+            filterEventType: '',
+            
+            // Pagination
+            currentPage: 1,
+            itemsPerPage: 10,
+            
+            // UI state
+            loading: false,
+            showModal: false,
+            modalMode: 'add',
+            
+            // Form data
+            formData: {
+                rfidCode: '',
+                animalId: '',
+                location: '',
+                eventType: '',
+                readerId: '',
+                notes: ''
+            }
+        };
+    },
+    computed: {
+        filteredReadings() {
+            let filtered = this.readings;
+            
+            // Apply search
+            if (this.searchQuery) {
+                const query = this.searchQuery.toLowerCase();
+                filtered = filtered.filter(r => 
+                    r.rfid_code.toLowerCase().includes(query) ||
+                    r.animal_name.toLowerCase().includes(query) ||
+                    r.location.toLowerCase().includes(query) ||
+                    r.reader_id.toLowerCase().includes(query)
+                );
+            }
+            
+            // Apply status filter
+            if (this.filterStatus) {
+                filtered = filtered.filter(r => r.status.class === this.filterStatus);
+            }
+            
+            // Apply event type filter
+            if (this.filterEventType) {
+                filtered = filtered.filter(r => r.event_type.name === this.filterEventType);
+            }
+            
+            return filtered;
+        },
+        paginatedReadings() {
+            const start = (this.currentPage - 1) * this.itemsPerPage;
+            const end = start + this.itemsPerPage;
+            return this.filteredReadings.slice(start, end);
+        },
+        totalPages() {
+            return Math.ceil(this.filteredReadings.length / this.itemsPerPage);
+        },
+        displayedPages() {
+            const pages = [];
+            const maxPages = 5;
+            let startPage = Math.max(1, this.currentPage - Math.floor(maxPages / 2));
+            let endPage = Math.min(this.totalPages, startPage + maxPages - 1);
+            
+            if (endPage - startPage < maxPages - 1) {
+                startPage = Math.max(1, endPage - maxPages + 1);
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                pages.push(i);
+            }
+            return pages;
+        },
+        startIndex() {
+            return (this.currentPage - 1) * this.itemsPerPage;
+        },
+        endIndex() {
+            return this.startIndex + this.itemsPerPage;
+        },
+        isEmpty() {
+            return this.filteredReadings.length === 0;
+        },
+        totalReadings() {
+            return this.readings.length;
+        },
+        successfulReadings() {
+            return this.readings.filter(r => r.status.class === 'success').length;
+        },
+        errorReadings() {
+            return this.readings.filter(r => r.status.class === 'danger').length;
+        },
+        todayReadings() {
+            const today = new Date().toISOString().split('T')[0];
+            return this.readings.filter(r => r.scan_timestamp.split(' ')[0] === today).length;
+        },
+        successRate() {
+            if (this.totalReadings === 0) return 0;
+            return Math.round((this.successfulReadings / this.totalReadings) * 100);
+        }
+    },
+    methods: {
+        performSearch() {
+            this.currentPage = 1;
+        },
+        clearSearch() {
+            this.searchQuery = '';
+            this.currentPage = 1;
+        },
+        applyFilters() {
+            this.currentPage = 1;
+        },
+        resetFilters() {
+            this.searchQuery = '';
+            this.filterStatus = '';
+            this.filterEventType = '';
+            this.currentPage = 1;
+        },
+        changePage(page) {
+            if (page >= 1 && page <= this.totalPages) {
+                this.currentPage = page;
+                // NO hacer scroll - mantener posición del usuario
+            }
+        },
+        getSignalColor(strength) {
+            if (strength >= 80) return '#10B981';
+            if (strength >= 60) return '#F59E0B';
+            return '#EF4444';
+        },
+        viewReading(reading) {
+            alert(`Ver detalles de lectura #${reading.id}\n\nRFID: ${reading.rfid_code}\nAnimal: ${reading.animal_name}\nUbicación: ${reading.location}\nEvento: ${reading.event_type.name}\nEstado: ${reading.status.name}\nSeñal: ${reading.signal_strength}%`);
+        },
+        editReading(reading) {
+            alert(`Editar lectura #${reading.id}`);
+        },
+        deleteReading(reading) {
+            if (confirm(`¿Estás seguro de eliminar la lectura #${reading.id}?`)) {
+                const index = this.readings.findIndex(r => r.id === reading.id);
+                if (index > -1) {
+                    this.readings.splice(index, 1);
+                }
+            }
+        },
+        openAddModal() {
+            alert('Abrir modal para registrar nueva lectura RFID');
+        }
+    },
+    mounted() {
+        console.log('RFID Management App iniciado');
+        console.log(`Total de lecturas: ${this.readings.length}`);
+    }
+}).mount('#rfidApp');
+</script>
+{% endblock %}

@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="es" x-data="{ darkMode: false, sidebarOpen: true }" :class="{ 'dark': darkMode }">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AgroTrace - Sistema Profesional de Trazabilidad Ganadera con RFID/NFC">
+    <meta name="author" content="AgroTrace Team">
+    <title>{% block title %}{{ app_name }}{% endblock %}</title>
+    
+    <!-- Google Fonts - Inter (Modern & Professional) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome 6.5 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    
+    <!-- Modern Design System CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modern-design-system.css') }}">
+    
+    <!-- Chart.js for visualizations -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.css">
+    
+    <!-- DataTables Modern CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+    
+    <!-- SweetAlert2 for modern alerts -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    
+    <!-- Alpine.js for reactive components -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+    
+    <!-- Vue.js 3 for advanced components -->
+    <script src="https://unpkg.com/vue@3.4.15/dist/vue.global.js"></script>
+    
+    <style>
+        /* Critical CSS - Prevent FOUC */
+        [x-cloak], [v-cloak] { 
+            display: none !important; 
+        }
+        
+        /* Base Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background: var(--color-bg-primary);
+            color: var(--color-text-primary);
+            overflow-x: hidden;
+        }
+        
+        /* Main Layout Structure */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+            width: 100%;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            width: 280px;
+            background: var(--color-sidebar-bg);
+            border-right: 1px solid var(--color-sidebar-border);
+            z-index: 1000;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+        
+        .sidebar.closed {
+            transform: translateX(-280px);
+        }
+        
+        /* Sidebar Header */
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid var(--color-sidebar-border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .logo-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--color-text-primary);
+            letter-spacing: -0.5px;
+        }
+        
+        .logo-subtitle {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--color-text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Sidebar Navigation */
+        .sidebar-nav {
+            padding: 16px 12px;
+        }
+        
+        .nav-section {
+            margin-bottom: 24px;
+        }
+        
+        .nav-section-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--color-text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            padding: 0 12px 8px;
+        }
+        
+        .nav-items {
+            list-style: none;
+        }
+        
+        .nav-item {
+            margin-bottom: 4px;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            color: var(--color-text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .nav-link:hover {
+            background: var(--color-sidebar-hover);
+            color: var(--color-text-primary);
+        }
+        
+        .nav-link.active {
+            background: var(--color-sidebar-active);
+            color: var(--color-primary);
+        }
+        
+        .nav-link.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 20px;
+            background: var(--color-primary);
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .nav-icon {
+            width: 20px;
+            text-align: center;
+            font-size: 16px;
+        }
+        
+        .nav-badge {
+            margin-left: auto;
+            padding: 2px 8px;
+            background: var(--color-error-light);
+            color: var(--color-error);
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .main-content.sidebar-closed {
+            margin-left: 0;
+        }
+        
+        /* Topbar */
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 900;
+            background: var(--color-topbar-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--color-topbar-border);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex: 1;
+        }
+        
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .sidebar-toggle {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            color: var(--color-text-secondary);
+            transition: all 0.2s ease;
+        }
+        
+        .sidebar-toggle:hover {
+            background: var(--color-bg-tertiary);
+            color: var(--color-text-primary);
+        }
+        
+        .search-box {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 8px 12px 8px 36px;
+            border: 1px solid var(--color-sidebar-border);
+            border-radius: 8px;
+            background: var(--color-bg-secondary);
+            color: var(--color-text-primary);
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px var(--color-primary-light);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--color-text-tertiary);
+            font-size: 14px;
+        }
+        
+        .topbar-action {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            color: var(--color-text-secondary);
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .topbar-action:hover {
+            background: var(--color-bg-tertiary);
+            color: var(--color-text-primary);
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 8px;
+            height: 8px;
+            background: var(--color-error);
+            border-radius: 50%;
+            border: 2px solid var(--color-topbar-bg);
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        
+        .user-avatar:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Content Area */
+        .content-wrapper {
+            flex: 1;
+            padding: 24px;
+        }
+        
+        /* Dark Mode Styles */
+        .dark {
+            --color-bg-primary: #0D1117;
+            --color-bg-secondary: #161B22;
+            --color-bg-tertiary: #1C2128;
+            --color-bg-hover: #21262D;
+            
+            --color-sidebar-bg: #0B0E14;
+            --color-sidebar-border: #21262D;
+            --color-sidebar-hover: #161B22;
+            --color-sidebar-active: #1C2834;
+            
+            --color-topbar-bg: rgba(11, 14, 20, 0.8);
+            --color-topbar-border: #21262D;
+            
+            --color-text-primary: #E5E7EB;
+            --color-text-secondary: #9CA3AF;
+            --color-text-tertiary: #6B7280;
+            
+            --color-primary-light: #1E3A5F;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-280px);
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .search-box {
+                display: none;
+            }
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+    </style>
+    
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- ========== SIDEBAR ========== -->
+        <aside class="sidebar" :class="{ 'closed': !sidebarOpen, 'open': sidebarOpen }">
+            <!-- Sidebar Header -->
+            <div class="sidebar-header">
+                <div class="logo-icon">
+                    <i class="fas fa-cow"></i>
+                </div>
+                <div class="logo-text">
+                    <span class="logo-title">AgroTrace</span>
+                    <span class="logo-subtitle">Pro v3.5</span>
+                </div>
+            </div>
+            
+            <!-- Sidebar Navigation -->
+            <nav class="sidebar-nav">
+                <!-- Main Section -->
+                <div class="nav-section">
+                    <div class="nav-section-title">Principal</div>
+                    <ul class="nav-items">
+                        <li class="nav-item">
+                            <a href="/" class="nav-link active">
+                                <i class="nav-icon fas fa-th-large"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/animals" class="nav-link">
+                                <i class="nav-icon fas fa-cow"></i>
+                                <span>Animales</span>
+                                <span class="nav-badge">{{ stats.total if stats else '155' }}</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/health" class="nav-link">
+                                <i class="nav-icon fas fa-heartbeat"></i>
+                                <span>Salud</span>
+                                {% if stats and stats.critical > 0 %}
+                                <span class="nav-badge">{{ stats.critical }}</span>
+                                {% endif %}
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/rfid" class="nav-link">
+                                <i class="nav-icon fas fa-wifi"></i>
+                                <span>Lecturas RFID</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Analytics Section -->
+                <div class="nav-section">
+                    <div class="nav-section-title">Análisis</div>
+                    <ul class="nav-items">
+                        <li class="nav-item">
+                            <a href="/reports" class="nav-link">
+                                <i class="nav-icon fas fa-chart-line"></i>
+                                <span>Reportes</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/analytics" class="nav-link">
+                                <i class="nav-icon fas fa-chart-pie"></i>
+                                <span>Estadísticas</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/history" class="nav-link">
+                                <i class="nav-icon fas fa-history"></i>
+                                <span>Historial</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Settings Section -->
+                <div class="nav-section">
+                    <div class="nav-section-title">Configuración</div>
+                    <ul class="nav-items">
+                        <li class="nav-item">
+                            <a href="/settings" class="nav-link">
+                                <i class="nav-icon fas fa-cog"></i>
+                                <span>Ajustes</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/users" class="nav-link">
+                                <i class="nav-icon fas fa-users"></i>
+                                <span>Usuarios</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- ========== MAIN CONTENT ========== -->
+        <main class="main-content" :class="{ 'sidebar-closed': !sidebarOpen }">
+            <!-- Topbar -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="sidebar-toggle" @click="sidebarOpen = !sidebarOpen">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    
+                    <div class="search-box">
+                        <i class="search-icon fas fa-search"></i>
+                        <input type="text" class="search-input" placeholder="Buscar animales, reportes...">
+                    </div>
+                </div>
+                
+                <div class="topbar-right">
+                    <button class="topbar-action" @click="darkMode = !darkMode" title="Cambiar tema">
+                        <i class="fas" :class="darkMode ? 'fa-sun' : 'fa-moon'"></i>
+                    </button>
+                    
+                    <button class="topbar-action" title="Notificaciones">
+                        <i class="fas fa-bell"></i>
+                        {% if stats and stats.critical > 0 %}
+                        <span class="notification-badge"></span>
+                        {% endif %}
+                    </button>
+                    
+                    <button class="topbar-action" title="Ayuda">
+                        <i class="fas fa-question-circle"></i>
+                    </button>
+                    
+                    <div class="user-avatar" title="Perfil de usuario">
+                        <i class="fas fa-user"></i>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Content Wrapper -->
+            <div class="content-wrapper fade-in">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+    
+    <!-- ========== JAVASCRIPT LIBRARIES ========== -->
+    <!-- jQuery (required for DataTables) -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    
+    <!-- DataTables -->
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    
+    <!-- Custom Dashboard JS -->
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    
+    <!-- Initialize Dark Mode from localStorage -->
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.store('theme', {
+                dark: localStorage.getItem('darkMode') === 'true',
+                
+                toggle() {
+                    this.dark = !this.dark;
+                    localStorage.setItem('darkMode', this.dark);
+                }
+            });
+        });
+        
+        // Apply saved theme on load
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,1321 @@
+{% extends "layout.html" %}
+
+{% block title %}Gestión de Animales - {{ app_name }}{% endblock %}
+
+{% block content %}
+<!-- Animals Management Module with Vue.js 3 -->
+<div id="animalsApp" v-cloak>
+    <!-- Header Section -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-title-group">
+                <h1 class="page-title">
+                    <i data-lucide="activity" class="page-icon"></i>
+                    Gestión de Animales
+                </h1>
+                <p class="page-subtitle">
+                    Administra y monitorea tu ganado en tiempo real
+                </p>
+            </div>
+            <div class="page-actions">
+                <button @click="openAddModal()" class="btn btn-primary btn-lg">
+                    <i data-lucide="plus" class="btn-icon"></i>
+                    Agregar Animal
+                </button>
+            </div>
+        </div>
+    </div>    <!-- Loading Skeleton -->
+    <div v-if="loading" class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
+        <div v-for="i in 4" :key="i" class="stat-card skeleton-loading">
+            <div class="skeleton-header"></div>
+            <div class="skeleton-value"></div>
+            <div class="skeleton-label"></div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div v-else class="stats-grid animated-fade-in" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
+        <!-- Total Animals Card -->
+        <div class="stat-card stat-card-primary animated-scale-in" style="animation-delay: 0s;">
+            <div class="stat-card-header">
+                <div class="stat-icon stat-icon-primary">
+                    <i data-lucide="database"></i>
+                </div>
+                <div class="stat-trend stat-trend-up">
+                    <i data-lucide="trending-up"></i>
+                    <span>+12%</span>
+                </div>
+            </div>
+            <div class="stat-card-body">
+                <div class="stat-value">{{ totalAnimals }}</div>
+                <div class="stat-label">Total Animales</div>
+                <div class="stat-description">Registrados en el sistema</div>
+            </div>
+        </div>
+
+        <!-- Healthy Animals Card -->
+        <div class="stat-card stat-card-success animated-scale-in" style="animation-delay: 0.1s;">
+            <div class="stat-card-header">
+                <div class="stat-icon stat-icon-success">
+                    <i data-lucide="heart-pulse"></i>
+                </div>
+                <div class="stat-trend stat-trend-up">
+                    <i data-lucide="check-circle"></i>
+                    <span>{{ healthyPercentage }}%</span>
+                </div>
+            </div>
+            <div class="stat-card-body">
+                <div class="stat-value">{{ healthyCount }}</div>
+                <div class="stat-label">Saludables</div>
+                <div class="stat-description">Estado óptimo</div>
+            </div>
+        </div>
+
+        <!-- Warning Animals Card -->
+        <div class="stat-card stat-card-warning animated-scale-in" style="animation-delay: 0.2s;">
+            <div class="stat-card-header">
+                <div class="stat-icon stat-icon-warning">
+                    <i data-lucide="alert-triangle"></i>
+                </div>
+                <div class="stat-trend stat-trend-neutral">
+                    <i data-lucide="activity"></i>
+                    <span>Monitor</span>
+                </div>
+            </div>
+            <div class="stat-card-body">
+                <div class="stat-value">{{ warningCount }}</div>
+                <div class="stat-label">En Observación</div>
+                <div class="stat-description">Requieren atención</div>
+            </div>
+        </div>
+
+        <!-- Critical Animals Card -->
+        <div class="stat-card stat-card-danger animated-scale-in" style="animation-delay: 0.3s;">
+            <div class="stat-card-header">
+                <div class="stat-icon stat-icon-danger">
+                    <i data-lucide="alert-octagon"></i>
+                </div>
+                <div class="stat-trend stat-trend-down">
+                    <i data-lucide="trending-down"></i>
+                    <span>Urgente</span>
+                </div>
+            </div>
+            <div class="stat-card-body">
+                <div class="stat-value">{{ criticalCount }}</div>
+                <div class="stat-label">Críticos</div>
+                <div class="stat-description">Intervención inmediata</div>
+            </div>
+        </div>
+    </div>    <!-- Filters and Search Bar -->
+    <div class="card animated-slide-up" style="margin-top: 2rem;">
+        <div class="card-body" style="padding: 1.5rem;">
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+                <!-- Search Input -->
+                <div style="flex: 1; min-width: 280px; max-width: 400px;">
+                    <div class="form-group" style="margin: 0;">
+                        <div style="position: relative;">
+                            <i data-lucide="search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: var(--color-text-tertiary);"></i>
+                            <input 
+                                type="text" 
+                                v-model="searchQuery"
+                                placeholder="Buscar por RFID, nombre, raza..." 
+                                class="form-control"
+                                style="padding-left: 40px;"
+                            >
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                    <!-- Status Filter -->
+                    <select v-model="filterStatus" class="form-select" style="min-width: 160px;">
+                        <option value="">Todos los estados</option>
+                        <option value="success">Saludables</option>
+                        <option value="warning">En Observación</option>
+                        <option value="danger">Críticos</option>
+                    </select>
+
+                    <!-- Breed Filter -->
+                    <select v-model="filterBreed" class="form-select" style="min-width: 160px;">
+                        <option value="">Todas las razas</option>
+                        <option value="Holstein">Holstein</option>
+                        <option value="Brahman">Brahman</option>
+                        <option value="Angus">Angus</option>
+                        <option value="Simmental">Simmental</option>
+                        <option value="Charolais">Charolais</option>
+                        <option value="Hereford">Hereford</option>
+                    </select>
+
+                    <!-- Export Button -->
+                    <button @click="exportData()" class="btn btn-outline" style="white-space: nowrap;">
+                        <i data-lucide="download" class="btn-icon"></i>
+                        Exportar
+                    </button>
+
+                    <!-- Refresh Button -->
+                    <button @click="fetchAnimals()" class="btn btn-outline" style="white-space: nowrap;" :disabled="loading">
+                        <i data-lucide="refresh-cw" class="btn-icon" :class="{ 'spin-animation': loading }"></i>
+                        Actualizar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>    <!-- Loading Skeleton for Table -->
+    <div v-if="loading" class="card animated-slide-up" style="margin-top: 1.5rem;">
+        <div class="card-header">
+            <div class="skeleton-title" style="width: 150px;"></div>
+        </div>
+        <div class="card-body" style="padding: 0;">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th style="width: 40px;"></th>
+                            <th>RFID Tag</th>
+                            <th>Nombre</th>
+                            <th>Raza</th>
+                            <th>Edad</th>
+                            <th>Estado</th>
+                            <th>Ubicación</th>
+                            <th>Última Revisión</th>
+                            <th style="width: 180px;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="i in 5" :key="i">
+                            <td><div class="skeleton-checkbox"></div></td>
+                            <td><div class="skeleton-text"></div></td>
+                            <td><div class="skeleton-avatar-row"></div></td>
+                            <td><div class="skeleton-badge"></div></td>
+                            <td><div class="skeleton-text"></div></td>
+                            <td><div class="skeleton-badge"></div></td>
+                            <td><div class="skeleton-text"></div></td>
+                            <td><div class="skeleton-text"></div></td>
+                            <td><div class="skeleton-actions"></div></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Animals Table -->
+    <div v-else class="card animated-slide-up" style="margin-top: 1.5rem;">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i data-lucide="list" style="width: 20px; height: 20px; margin-right: 8px;"></i>
+                Lista de Animales
+            </h3>
+            <span class="badge badge-primary">{{ filteredAnimals.length }} animales</span>
+        </div>
+        <div class="card-body" style="padding: 0;">
+            <!-- Table Wrapper -->
+            <div v-if="!isEmpty" class="table-responsive">
+                <table class="table" id="animalsTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 40px;">
+                                <input type="checkbox" class="form-checkbox">
+                            </th>
+                            <th>RFID Tag</th>
+                            <th>Nombre</th>
+                            <th>Raza</th>
+                            <th>Edad</th>
+                            <th>Estado de Salud</th>
+                            <th>Ubicación</th>
+                            <th>Última Revisión</th>
+                            <th style="width: 180px; text-align: center;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="animal in paginatedAnimals" :key="animal.id" class="table-row-hover animated-fade-in">
+                            <td>
+                                <input type="checkbox" class="form-checkbox">
+                            </td>
+                            <td>
+                                <div class="rfid-tag">
+                                    <i data-lucide="radio" style="width: 14px; height: 14px;"></i>
+                                    <span>{{ animal.rfid }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="animal-info">
+                                    <img 
+                                        :src="animal.avatar" 
+                                        :alt="animal.name"
+                                        class="animal-avatar"
+                                        style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;"
+                                    >
+                                    <div class="animal-details">
+                                        <div class="animal-name">{{ animal.name }}</div>
+                                        <div class="animal-id">ID: {{ animal.id }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge badge-outline">{{ animal.breed }}</span>
+                            </td>
+                            <td>
+                                <span>{{ animal.age }} {{ animal.age === 1 ? 'año' : 'años' }}</span>
+                            </td>
+                            <td>
+                                <span 
+                                    class="badge" 
+                                    :class="`badge-${animal.status.class}`"
+                                >
+                                    {{ animal.status.label }}
+                                </span>
+                            </td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <i data-lucide="map-pin" style="width: 14px; height: 14px; color: var(--color-text-tertiary);"></i>
+                                    <span>{{ animal.location }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span>{{ animal.last_check }}</span>
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button 
+                                        @click="viewAnimal(animal)" 
+                                        class="btn-icon-action btn-icon-primary"
+                                        title="Ver detalles"
+                                    >
+                                        <i data-lucide="eye"></i>
+                                    </button>
+                                    <button 
+                                        @click="editAnimal(animal)" 
+                                        class="btn-icon-action btn-icon-warning"
+                                        title="Editar"
+                                    >
+                                        <i data-lucide="edit"></i>
+                                    </button>
+                                    <button 
+                                        @click="deleteAnimal(animal)" 
+                                        class="btn-icon-action btn-icon-danger"
+                                        title="Eliminar"
+                                    >
+                                        <i data-lucide="trash-2"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Empty State -->
+            <div v-if="isEmpty" class="empty-state animated-fade-in">
+                <div class="empty-state-icon-wrapper">
+                    <i data-lucide="inbox" class="empty-state-icon"></i>
+                </div>
+                <h3 class="empty-state-title">No se encontraron animales</h3>
+                <p class="empty-state-description">
+                    {{ searchQuery || filterStatus || filterBreed 
+                        ? 'Intenta ajustar los filtros de búsqueda' 
+                        : 'Comienza agregando tu primer animal al sistema' }}
+                </p>
+                <button @click="openAddModal()" class="btn btn-primary" style="margin-top: 1.5rem;">
+                    <i data-lucide="plus" class="btn-icon"></i>
+                    Agregar Animal
+                </button>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div v-if="!isEmpty" class="card-footer">
+            <div class="pagination-info">
+                Mostrando 
+                <strong>{{ (currentPage - 1) * itemsPerPage + 1 }}</strong>
+                - 
+                <strong>{{ Math.min(currentPage * itemsPerPage, filteredAnimals.length) }}</strong>
+                de 
+                <strong>{{ filteredAnimals.length }}</strong> 
+                animales
+            </div>
+            <div class="pagination-controls">
+                <button 
+                    @click="changePage(currentPage - 1)" 
+                    class="btn btn-sm btn-outline" 
+                    :disabled="currentPage === 1"
+                >
+                    <i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i>
+                    Anterior
+                </button>
+                <div class="pagination-numbers">
+                    <button 
+                        v-for="page in totalPages" 
+                        :key="page"
+                        @click="changePage(page)"
+                        class="btn btn-sm"
+                        :class="page === currentPage ? 'btn-primary' : 'btn-outline'"
+                    >
+                        {{ page }}
+                    </button>
+                </div>
+                <button 
+                    @click="changePage(currentPage + 1)" 
+                    class="btn btn-sm btn-outline"
+                    :disabled="currentPage === totalPages"
+                >
+                    Siguiente
+                    <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
+                </button>
+            </div>
+        </div>
+    </div>    <!-- Add/Edit Animal Modal -->
+    <transition name="modal">
+        <div 
+            v-if="showModal"
+            class="modal-overlay"
+            @click.self="closeModal()"
+        >
+            <div class="modal modal-lg animated-scale-in">
+                <div class="modal-header">
+                    <h2 class="modal-title">
+                        <i :data-lucide="modalMode === 'add' ? 'plus-circle' : 'edit'" class="modal-icon"></i>
+                        {{ modalMode === 'add' ? 'Agregar Nuevo Animal' : 'Editar Animal' }}
+                    </h2>
+                    <button @click="closeModal()" class="btn-close">
+                        <i data-lucide="x"></i>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <form @submit.prevent="saveAnimal()">
+                        <div class="form-grid">
+                            <!-- RFID Tag -->
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i data-lucide="radio" class="label-icon"></i>
+                                    RFID Tag *
+                                </label>
+                                <input 
+                                    type="text" 
+                                    v-model="formData.rfid"
+                                    class="form-control"
+                                    placeholder="RF-00000000"
+                                    required
+                                >
+                                <span class="form-hint">Código único del dispositivo RFID</span>
+                            </div>
+
+                            <!-- Animal Name -->
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i data-lucide="tag" class="label-icon"></i>
+                                    Nombre del Animal *
+                                </label>
+                                <input 
+                                    type="text" 
+                                    v-model="formData.name"
+                                    class="form-control"
+                                    placeholder="Ej: Mariposa, Estrella"
+                                    required
+                                >
+                            </div>
+
+                            <!-- Breed -->
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i data-lucide="paw-print" class="label-icon"></i>
+                                    Raza *
+                                </label>
+                                <select v-model="formData.breed" class="form-select" required>
+                                    <option value="">Seleccionar raza</option>
+                                    <option value="Holstein">Holstein</option>
+                                    <option value="Brahman">Brahman</option>
+                                    <option value="Angus">Angus</option>
+                                    <option value="Simmental">Simmental</option>
+                                    <option value="Charolais">Charolais</option>
+                                    <option value="Hereford">Hereford</option>
+                                </select>
+                            </div>
+
+                            <!-- Age -->
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i data-lucide="calendar" class="label-icon"></i>
+                                    Edad (años) *
+                                </label>
+                                <input 
+                                    type="number" 
+                                    v-model="formData.age"
+                                    class="form-control"
+                                    placeholder="0"
+                                    min="0"
+                                    max="20"
+                                    required
+                                >
+                            </div>
+
+                            <!-- Health Status -->
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i data-lucide="heart-pulse" class="label-icon"></i>
+                                    Estado de Salud *
+                                </label>
+                                <select v-model="formData.status" class="form-select" required>
+                                    <option value="">Seleccionar estado</option>
+                                    <option value="success">Saludable</option>
+                                    <option value="warning">En Observación</option>
+                                    <option value="danger">Crítico</option>
+                                </select>
+                            </div>
+
+                            <!-- Location -->
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i data-lucide="map-pin" class="label-icon"></i>
+                                    Ubicación *
+                                </label>
+                                <input 
+                                    type="text" 
+                                    v-model="formData.location"
+                                    class="form-control"
+                                    placeholder="Ej: Potrero A, Zona Norte"
+                                    required
+                                >
+                                <span class="form-hint">Ubicación actual del animal</span>
+                            </div>
+
+                            <!-- Weight -->
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i data-lucide="weight" class="label-icon"></i>
+                                    Peso (kg)
+                                </label>
+                                <input 
+                                    type="number" 
+                                    v-model="formData.weight"
+                                    class="form-control"
+                                    placeholder="0"
+                                    min="0"
+                                    step="0.1"
+                                >
+                            </div>
+
+                            <!-- Observations -->
+                            <div class="form-group" style="grid-column: 1 / -1;">
+                                <label class="form-label">
+                                    <i data-lucide="file-text" class="label-icon"></i>
+                                    Observaciones
+                                </label>
+                                <textarea 
+                                    v-model="formData.observations"
+                                    class="form-control"
+                                    rows="3"
+                                    placeholder="Notas adicionales sobre el animal..."
+                                ></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Modal Footer -->
+                        <div class="modal-footer">
+                            <button type="button" @click="closeModal()" class="btn btn-outline">
+                                <i data-lucide="x" class="btn-icon"></i>
+                                Cancelar
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i :data-lucide="modalMode === 'add' ? 'check' : 'save'" class="btn-icon"></i>
+                                {{ modalMode === 'add' ? 'Agregar Animal' : 'Guardar Cambios' }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </transition>
+                                Nombre del Animal *
+                            </label>
+                            <input 
+                                type="text" 
+                                x-model="formData.name"
+                                class="form-control"
+                                placeholder="Ej: Bella, Max, Luna"
+                                required
+                            >
+                            <span class="form-hint">Nombre identificativo del animal</span>
+                        </div>
+
+                        <!-- Breed -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i data-lucide="award" class="label-icon"></i>
+                                Raza *
+                            </label>
+                            <select x-model="formData.breed" class="form-select" required>
+                                <option value="">Seleccionar raza</option>
+                                <option value="Holstein">Holstein</option>
+                                <option value="Brahman">Brahman</option>
+                                <option value="Angus">Angus</option>
+                                <option value="Simmental">Simmental</option>
+                                <option value="Charolais">Charolais</option>
+                                <option value="Hereford">Hereford</option>
+                                <option value="Jersey">Jersey</option>
+                            </select>
+                        </div>
+
+                        <!-- Age -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i data-lucide="calendar" class="label-icon"></i>
+                                Edad (años) *
+                            </label>
+                            <input 
+                                type="number" 
+                                x-model="formData.age"
+                                class="form-control"
+                                placeholder="0"
+                                min="0"
+                                max="20"
+                                required
+                            >
+                        </div>
+
+                        <!-- Health Status -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i data-lucide="heart-pulse" class="label-icon"></i>
+                                Estado de Salud *
+                            </label>
+                            <select x-model="formData.status" class="form-select" required>
+                                <option value="">Seleccionar estado</option>
+                                <option value="success">Saludable</option>
+                                <option value="warning">En Observación</option>
+                                <option value="danger">Crítico</option>
+                            </select>
+                        </div>
+
+                        <!-- Location -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i data-lucide="map-pin" class="label-icon"></i>
+                                Ubicación *
+                            </label>
+                            <input 
+                                type="text" 
+                                x-model="formData.location"
+                                class="form-control"
+                                placeholder="Ej: Potrero A, Zona Norte"
+                                required
+                            >
+                            <span class="form-hint">Ubicación actual del animal</span>
+                        </div>
+
+                        <!-- Weight -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i data-lucide="weight" class="label-icon"></i>
+                                Peso (kg)
+                            </label>
+                            <input 
+                                type="number" 
+                                x-model="formData.weight"
+                                class="form-control"
+                                placeholder="0"
+                                min="0"
+                                step="0.1"
+                            >
+                        </div>
+
+                        <!-- Observations -->
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label class="form-label">
+                                <i data-lucide="file-text" class="label-icon"></i>
+                                Observaciones
+                            </label>
+                            <textarea 
+                                x-model="formData.observations"
+                                class="form-control"
+                                rows="3"
+                                placeholder="Notas adicionales sobre el animal..."
+                            ></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button @click="closeModal()" type="button" class="btn btn-outline">
+                    <i data-lucide="x" class="btn-icon"></i>
+                    Cancelar
+                </button>
+                <button @click="submitForm()" type="button" class="btn btn-primary">
+                    <i data-lucide="save" class="btn-icon"></i>
+                    <span x-text="modalMode === 'add' ? 'Guardar Animal' : 'Actualizar Animal'"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Additional Styles -->
+<style>
+    /* Animal Info Styles */
+    .animal-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .animal-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        color: white;
+        font-size: 16px;
+        flex-shrink: 0;
+    }
+
+    .animal-details {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .animal-name {
+        font-weight: 600;
+        color: var(--color-text-primary);
+        font-size: 14px;
+    }
+
+    .animal-id {
+        font-size: 12px;
+        color: var(--color-text-tertiary);
+    }
+
+    .rfid-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        background: var(--color-bg-tertiary);
+        border-radius: 6px;
+        font-family: 'Courier New', monospace;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--color-text-secondary);
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 6px;
+        justify-content: center;
+    }
+
+    .btn-icon-action {
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+
+    .btn-icon-action i {
+        width: 16px;
+        height: 16px;
+    }
+
+    .btn-icon-primary {
+        color: var(--color-primary);
+    }
+
+    .btn-icon-primary:hover {
+        background: var(--color-primary-light);
+    }
+
+    .btn-icon-warning {
+        color: var(--color-warning);
+    }
+
+    .btn-icon-warning:hover {
+        background: var(--color-warning-light);
+    }
+
+    .btn-icon-danger {
+        color: var(--color-error);
+    }
+
+    .btn-icon-danger:hover {
+        background: var(--color-error-light);
+    }
+
+    /* Form Grid */
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .form-hint {
+        display: block;
+        font-size: 12px;
+        color: var(--color-text-tertiary);
+        margin-top: 4px;
+    }
+
+    .label-icon {
+        width: 16px;
+        height: 16px;
+        margin-right: 6px;
+        color: var(--color-text-tertiary);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+
+    .empty-state-icon {
+        width: 64px;
+        height: 64px;
+        color: var(--color-text-tertiary);
+        margin-bottom: 1rem;
+    }
+
+    .empty-state-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--color-text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state-description {
+        color: var(--color-text-secondary);
+        font-size: 14px;
+    }
+
+    /* Pagination */
+    .card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        border-top: 1px solid var(--color-border);
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .pagination-info {
+        color: var(--color-text-secondary);
+        font-size: 14px;
+    }
+
+    .pagination-controls {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .pagination-numbers {
+        display: flex;
+        gap: 0.25rem;
+    }
+
+    /* Modal Transitions */
+    .modal-enter {
+        transition: opacity 0.3s ease;
+    }
+
+    .modal-enter-start {
+        opacity: 0;
+    }
+
+    .modal-enter-end {
+        opacity: 1;
+    }
+
+    .modal-leave {
+        transition: opacity 0.2s ease;
+    }
+
+    .modal-leave-start {
+        opacity: 1;
+    }
+
+    .modal-leave-end {
+        opacity: 0;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .page-header-content {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .page-actions {
+            width: 100%;
+        }
+
+        .page-actions .btn {
+            width: 100%;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .pagination-controls {
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .pagination-numbers {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<!-- External Libraries -->
+<script src="https://cdn.jsdelivr.net/npm/axios@1.6.2/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<!-- Vue.js 3 Animals Manager Component -->
+<script>
+const { createApp } = Vue;
+
+createApp({
+    data() {
+        return {
+            // Estado de carga
+            loading: true,
+            loadingMessage: 'Cargando animales...',
+            
+            // Datos principales
+            animals: [],
+            filteredAnimals: [],
+            
+            // Modal
+            showModal: false,
+            modalMode: 'add',
+            currentAnimal: null,
+            
+            // Formulario
+            formData: {
+                rfid: '',
+                name: '',
+                breed: '',
+                age: '',
+                status: 'success',
+                location: '',
+                weight: '',
+                observations: ''
+            },
+            
+            // Filtros y búsqueda
+            searchQuery: '',
+            filterStatus: '',
+            filterBreed: '',
+            
+            // Paginación
+            currentPage: 1,
+            itemsPerPage: 10,
+            totalPages: 1,
+            
+            // Auto-refresh
+            autoRefresh: false,
+            refreshInterval: null,
+            refreshTimer: 30
+        };
+    },
+    
+    computed: {
+        // Estadísticas
+        totalAnimals() {
+            return this.animals.length;
+        },
+        
+        healthyCount() {
+            return this.animals.filter(a => a.status.class === 'success').length;
+        },
+        
+        warningCount() {
+            return this.animals.filter(a => a.status.class === 'warning').length;
+        },
+        
+        criticalCount() {
+            return this.animals.filter(a => a.status.class === 'danger').length;
+        },
+        
+        healthyPercentage() {
+            if (this.totalAnimals === 0) return 0;
+            return Math.round((this.healthyCount / this.totalAnimals) * 100);
+        },
+        
+        // Animales paginados
+        paginatedAnimals() {
+            const start = (this.currentPage - 1) * this.itemsPerPage;
+            const end = start + this.itemsPerPage;
+            return this.filteredAnimals.slice(start, end);
+        },
+        
+        // Estado vacío
+        isEmpty() {
+            return !this.loading && this.filteredAnimals.length === 0;
+        }
+    },
+    
+    watch: {
+        searchQuery() {
+            this.filterAnimals();
+        },
+        
+        filterStatus() {
+            this.filterAnimals();
+        },
+        
+        filterBreed() {
+            this.filterAnimals();
+        },
+        
+        autoRefresh(newValue) {
+            if (newValue) {
+                this.startAutoRefresh();
+            } else {
+                this.stopAutoRefresh();
+            }
+        }
+    },
+    
+    methods: {
+        // Cargar animales desde la API
+        async fetchAnimals() {
+            this.loading = true;
+            this.loadingMessage = 'Cargando animales...';
+            
+            try {
+                const response = await axios.get('/api/animals', {
+                    params: {
+                        page: 1,
+                        per_page: 100
+                    }
+                });
+                
+                this.animals = response.data.animals || [];
+                this.filteredAnimals = [...this.animals];
+                this.updatePagination();
+                
+                await this.$nextTick();
+                this.initLucideIcons();
+                
+            } catch (error) {
+                console.error('Error al cargar animales:', error);
+                this.showErrorAlert('Error al cargar los animales. Por favor, intenta nuevamente.');
+            } finally {
+                this.loading = false;
+            }
+        },
+        
+        // Filtrar animales
+        filterAnimals() {
+            let filtered = [...this.animals];
+            
+            // Filtro de búsqueda
+            if (this.searchQuery.trim()) {
+                const query = this.searchQuery.toLowerCase();
+                filtered = filtered.filter(animal =>
+                    animal.rfid?.toLowerCase().includes(query) ||
+                    animal.name?.toLowerCase().includes(query) ||
+                    animal.breed?.toLowerCase().includes(query) ||
+                    animal.location?.toLowerCase().includes(query) ||
+                    animal.code?.toLowerCase().includes(query)
+                );
+            }
+            
+            // Filtro de estado
+            if (this.filterStatus) {
+                filtered = filtered.filter(animal => animal.status.class === this.filterStatus);
+            }
+            
+            // Filtro de raza
+            if (this.filterBreed) {
+                filtered = filtered.filter(animal => animal.breed === this.filterBreed);
+            }
+            
+            this.filteredAnimals = filtered;
+            this.currentPage = 1;
+            this.updatePagination();
+            
+            this.$nextTick(() => this.initLucideIcons());
+        },
+        
+        // Actualizar paginación
+        updatePagination() {
+            this.totalPages = Math.ceil(this.filteredAnimals.length / this.itemsPerPage);
+        },
+        
+        // Cambiar página
+        changePage(page) {
+            if (page >= 1 && page <= this.totalPages) {
+                this.currentPage = page;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        },
+        
+        // Abrir modal para agregar
+        openAddModal() {
+            this.modalMode = 'add';
+            this.resetForm();
+            this.showModal = true;
+            this.$nextTick(() => this.initLucideIcons());
+        },
+        
+        // Ver detalles de animal
+        viewAnimal(animal) {
+            window.location.href = `/animals/${animal.id}`;
+        },
+        
+        // Editar animal
+        editAnimal(animal) {
+            this.modalMode = 'edit';
+            this.currentAnimal = animal;
+            this.formData = {
+                rfid: animal.rfid,
+                name: animal.name,
+                breed: animal.breed,
+                age: animal.age,
+                status: animal.status.class,
+                location: animal.location,
+                weight: animal.weight || '',
+                observations: animal.observations || ''
+            };
+            this.showModal = true;
+            this.$nextTick(() => this.initLucideIcons());
+        },
+        
+        // Eliminar animal
+        async deleteAnimal(animal) {
+            const result = await Swal.fire({
+                title: '¿Estás seguro?',
+                html: `¿Deseas eliminar el animal <strong>${animal.name}</strong> (${animal.rfid})?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar',
+                reverseButtons: true
+            });
+            
+            if (result.isConfirmed) {
+                try {
+                    // Simulación (implementar endpoint DELETE)
+                    this.animals = this.animals.filter(a => a.id !== animal.id);
+                    this.filterAnimals();
+                    
+                    Swal.fire({
+                        title: '¡Eliminado!',
+                        text: 'El animal ha sido eliminado exitosamente.',
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } catch (error) {
+                    this.showErrorAlert('Error al eliminar el animal.');
+                }
+            }
+        },
+        
+        // Guardar formulario
+        async saveAnimal() {
+            if (!this.validateForm()) {
+                return;
+            }
+            
+            try {
+                if (this.modalMode === 'add') {
+                    // Simulación POST
+                    const newAnimal = {
+                        id: Date.now(),
+                        rfid: this.formData.rfid,
+                        name: this.formData.name,
+                        breed: this.formData.breed,
+                        age: this.formData.age,
+                        status: {
+                            class: this.formData.status,
+                            label: this.getStatusLabel(this.formData.status)
+                        },
+                        location: this.formData.location,
+                        weight: this.formData.weight,
+                        observations: this.formData.observations,
+                        last_check: 'Hoy',
+                        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(this.formData.name)}&background=random`
+                    };
+                    
+                    this.animals.unshift(newAnimal);
+                    
+                } else {
+                    // Simulación PUT
+                    const index = this.animals.findIndex(a => a.id === this.currentAnimal.id);
+                    if (index !== -1) {
+                        this.animals[index] = {
+                            ...this.animals[index],
+                            rfid: this.formData.rfid,
+                            name: this.formData.name,
+                            breed: this.formData.breed,
+                            age: this.formData.age,
+                            status: {
+                                class: this.formData.status,
+                                label: this.getStatusLabel(this.formData.status)
+                            },
+                            location: this.formData.location,
+                            weight: this.formData.weight,
+                            observations: this.formData.observations
+                        };
+                    }
+                }
+                
+                this.filterAnimals();
+                this.closeModal();
+                
+                Swal.fire({
+                    title: '¡Guardado!',
+                    text: `Animal ${this.modalMode === 'add' ? 'agregado' : 'actualizado'} exitosamente.`,
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                
+            } catch (error) {
+                this.showErrorAlert('Error al guardar el animal.');
+            }
+        },
+        
+        // Validar formulario
+        validateForm() {
+            if (!this.formData.rfid || !this.formData.name || !this.formData.breed) {
+                Swal.fire({
+                    title: 'Campos requeridos',
+                    text: 'Por favor completa todos los campos obligatorios.',
+                    icon: 'warning',
+                    confirmButtonColor: '#3b82f6'
+                });
+                return false;
+            }
+            return true;
+        },
+        
+        // Cerrar modal
+        closeModal() {
+            this.showModal = false;
+            this.resetForm();
+        },
+        
+        // Resetear formulario
+        resetForm() {
+            this.formData = {
+                rfid: '',
+                name: '',
+                breed: '',
+                age: '',
+                status: 'success',
+                location: '',
+                weight: '',
+                observations: ''
+            };
+            this.currentAnimal = null;
+        },
+        
+        // Obtener etiqueta de estado
+        getStatusLabel(statusClass) {
+            const labels = {
+                'success': 'Saludable',
+                'warning': 'En Observación',
+                'danger': 'Crítico'
+            };
+            return labels[statusClass] || 'Desconocido';
+        },
+        
+        // Exportar datos
+        exportData() {
+            Swal.fire({
+                title: 'Exportar Datos',
+                html: `
+                    <div style="text-align: left; padding: 1rem;">
+                        <p style="margin-bottom: 1rem;">Selecciona el formato de exportación:</p>
+                        <button id="export-excel" class="btn btn-primary" style="width: 100%; margin-bottom: 0.5rem;">
+                            <i data-lucide="file-spreadsheet"></i> Excel (.xlsx)
+                        </button>
+                        <button id="export-csv" class="btn btn-outline" style="width: 100%; margin-bottom: 0.5rem;">
+                            <i data-lucide="file-text"></i> CSV (.csv)
+                        </button>
+                        <button id="export-pdf" class="btn btn-outline" style="width: 100%;">
+                            <i data-lucide="file"></i> PDF (.pdf)
+                        </button>
+                    </div>
+                `,
+                showConfirmButton: false,
+                showCloseButton: true,
+                didOpen: () => {
+                    lucide.createIcons();
+                }
+            });
+        },
+        
+        // Auto-refresh
+        startAutoRefresh() {
+            this.refreshInterval = setInterval(() => {
+                this.fetchAnimals();
+            }, this.refreshTimer * 1000);
+        },
+        
+        stopAutoRefresh() {
+            if (this.refreshInterval) {
+                clearInterval(this.refreshInterval);
+                this.refreshInterval = null;
+            }
+        },
+        
+        // Inicializar iconos Lucide
+        initLucideIcons() {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        },
+        
+        // Mostrar alerta de error
+        showErrorAlert(message) {
+            Swal.fire({
+                title: 'Error',
+                text: message,
+                icon: 'error',
+                confirmButtonColor: '#ef4444'
+            });
+        }
+    },
+    
+    mounted() {
+        // Cargar datos iniciales
+        this.fetchAnimals();
+        
+        // Inicializar iconos
+        this.initLucideIcons();
+    },
+    
+    beforeUnmount() {
+        this.stopAutoRefresh();
+    }
+}).mount('#animalsApp');
+</script>
+{% endblock %}

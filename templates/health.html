@@ -1,0 +1,1142 @@
+{% extends "layout.html" %}
+
+{% block title %}Historial de Salud - {{ app_name }}{% endblock %}
+
+{% block content %}
+<!-- Health Records Management Module -->
+<div id="healthApp" v-cloak>
+    <!-- Header Section -->
+    <div class="page-header" style="margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h1 style="font-size: 28px; font-weight: 700; color: var(--color-text-primary); margin-bottom: 0.5rem;">
+                    <i class="fas fa-heartbeat" style="color: #EF4444; margin-right: 0.5rem;"></i>
+                    Historial de Salud Animal
+                </h1>
+                <p style="color: var(--color-text-secondary); font-size: 14px;">
+                    Monitorea y registra el estado de salud de tu ganado
+                </p>
+            </div>
+            <button @click="openAddModal()" class="btn btn-primary" style="padding: 12px 24px; font-size: 14px; font-weight: 600;">
+                <i class="fas fa-plus" style="margin-right: 8px;"></i>
+                Agregar Registro
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <!-- Total Records Card -->
+        <div class="stat-card stat-card-primary">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-clipboard-list" style="color: white; font-size: 20px;"></i>
+                </div>
+                <div style="display: flex; align-items: center; gap: 4px; padding: 4px 10px; background: rgba(16, 185, 129, 0.1); border-radius: 20px;">
+                    <i class="fas fa-arrow-up" style="color: #10B981; font-size: 10px;"></i>
+                    <span style="color: #10B981; font-size: 12px; font-weight: 600;">+8%</span>
+                </div>
+            </div>
+            <div style="font-size: 36px; font-weight: 700; color: var(--color-text-primary); margin-bottom: 0.5rem;">[[ totalRecords ]]</div>
+            <div style="color: var(--color-text-secondary); font-size: 14px; font-weight: 500;">Total Registros</div>
+            <div style="color: var(--color-text-tertiary); font-size: 12px; margin-top: 4px;">Historial completo</div>
+        </div>
+
+        <!-- Recent Checkups Card -->
+        <div class="stat-card stat-card-success">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-calendar-check" style="color: white; font-size: 20px;"></i>
+                </div>
+                <div style="display: flex; align-items: center; gap: 4px; padding: 4px 10px; background: rgba(16, 185, 129, 0.1); border-radius: 20px;">
+                    <i class="fas fa-check-circle" style="color: #10B981; font-size: 10px;"></i>
+                    <span style="color: #10B981; font-size: 12px; font-weight: 600;">Este mes</span>
+                </div>
+            </div>
+            <div style="font-size: 36px; font-weight: 700; color: var(--color-text-primary); margin-bottom: 0.5rem;">[[ recentCheckups ]]</div>
+            <div style="color: var(--color-text-secondary); font-size: 14px; font-weight: 500;">Revisiones Recientes</div>
+            <div style="color: var(--color-text-tertiary); font-size: 12px; margin-top: 4px;">Últimos 30 días</div>
+        </div>
+
+        <!-- Vaccines Applied Card -->
+        <div class="stat-card stat-card-warning">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-syringe" style="color: white; font-size: 20px;"></i>
+                </div>
+                <div style="display: flex; align-items: center; gap: 4px; padding: 4px 10px; background: rgba(245, 158, 11, 0.1); border-radius: 20px;">
+                    <i class="fas fa-shield-alt" style="color: #F59E0B; font-size: 10px;"></i>
+                    <span style="color: #F59E0B; font-size: 12px; font-weight: 600;">Activas</span>
+                </div>
+            </div>
+            <div style="font-size: 36px; font-weight: 700; color: var(--color-text-primary); margin-bottom: 0.5rem;">[[ vaccinesApplied ]]</div>
+            <div style="color: var(--color-text-secondary); font-size: 14px; font-weight: 500;">Vacunas Aplicadas</div>
+            <div style="color: var(--color-text-tertiary); font-size: 12px; margin-top: 4px;">Este trimestre</div>
+        </div>
+
+        <!-- Pending Reviews Card -->
+        <div class="stat-card stat-card-danger">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-clock" style="color: white; font-size: 20px;"></i>
+                </div>
+                <div style="display: flex; align-items: center; gap: 4px; padding: 4px 10px; background: rgba(239, 68, 68, 0.1); border-radius: 20px;">
+                    <i class="fas fa-exclamation" style="color: #EF4444; font-size: 10px;"></i>
+                    <span style="color: #EF4444; font-size: 12px; font-weight: 600;">Urgente</span>
+                </div>
+            </div>
+            <div style="font-size: 36px; font-weight: 700; color: var(--color-text-primary); margin-bottom: 0.5rem;">[[ pendingReviews ]]</div>
+            <div style="color: var(--color-text-secondary); font-size: 14px; font-weight: 500;">Revisiones Pendientes</div>
+            <div style="color: var(--color-text-tertiary); font-size: 12px; margin-top: 4px;">Programadas próximamente</div>
+        </div>
+    </div>
+
+    <!-- Search and Filters Bar -->
+    <div class="card animated-slide-up" style="margin-top: 2rem;">
+        <div class="card-body" style="padding: 1.5rem;">
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+                <!-- Enhanced Search Input -->
+                <div style="flex: 1; min-width: 280px; max-width: 450px;">
+                    <div class="form-group" style="margin: 0;">
+                        <div class="search-wrapper" style="position: relative;">
+                            <i class="fas fa-search" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #667eea; z-index: 1; font-size: 16px;"></i>
+                            <input 
+                                type="text" 
+                                v-model="searchQuery"
+                                placeholder="Buscar registro de salud..." 
+                                class="form-control search-input-enhanced"
+                                style="padding-left: 44px; padding-right: 40px; height: 48px; border-radius: 12px; border: 2px solid var(--color-border); font-size: 14px; transition: all 0.3s ease;"
+                            >
+                            <button 
+                                v-if="searchQuery" 
+                                @click="searchQuery = ''"
+                                class="search-clear-btn"
+                                style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 28px; height: 28px; border-radius: 50%; border: none; background: var(--color-bg-tertiary); color: var(--color-text-tertiary); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; z-index: 1;"
+                                title="Limpiar búsqueda"
+                            >
+                                <i class="fas fa-times" style="font-size: 12px;"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                    <!-- Status Filter -->
+                    <select v-model="filterStatus" class="form-select" style="min-width: 160px; height: 48px;">
+                        <option value="">Todos los estados</option>
+                        <option value="normal">Normal</option>
+                        <option value="atención">Atención</option>
+                        <option value="crítico">Crítico</option>
+                    </select>
+
+                    <!-- Type Filter -->
+                    <select v-model="filterType" class="form-select" style="min-width: 160px; height: 48px;">
+                        <option value="">Todos los tipos</option>
+                        <option value="revisión">Revisión</option>
+                        <option value="vacuna">Vacuna</option>
+                        <option value="tratamiento">Tratamiento</option>
+                        <option value="emergencia">Emergencia</option>
+                    </select>
+
+                    <!-- Refresh Button -->
+                    <button @click="loadRecords()" class="btn btn-outline" :disabled="loading" style="white-space: nowrap; height: 48px;">
+                        <i class="fas fa-sync-alt" :class="{ 'fa-spin': loading }" style="margin-right: 8px;"></i>
+                        Actualizar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Health Records Table -->
+    <div class="card">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 class="card-title" style="display: flex; align-items: center; gap: 0.5rem; margin: 0;">
+                <i class="fas fa-notes-medical"></i>
+                Registros de Salud
+            </h3>
+            <span class="badge badge-primary">[[ filteredRecords.length ]] registros</span>
+        </div>
+        <div class="card-body" style="padding: 0;">
+            <!-- Loading State -->
+            <div v-if="loading" style="padding: 3rem; text-align: center;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 48px; color: var(--color-primary); margin-bottom: 1rem;"></i>
+                <p style="color: var(--color-text-secondary);">Cargando registros...</p>
+            </div>
+
+            <!-- Table -->
+            <div v-else-if="!isEmpty" class="table-responsive">
+                <table class="table" style="margin: 0;">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">ID</th>
+                            <th>Animal</th>
+                            <th>Tipo</th>
+                            <th>Peso (kg)</th>
+                            <th>Estado</th>
+                            <th>Fecha</th>
+                            <th>Vacuna/Tratamiento</th>
+                            <th>Veterinario</th>
+                            <th style="width: 150px; text-align: center;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="record in paginatedRecords" :key="record.id">
+                            <td style="font-weight: 600; color: var(--color-text-secondary);">#[[ record.id ]]</td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div style="width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; color: white;" :style="{ background: record.animalColor }">
+                                        [[ record.animalName.charAt(0) ]]
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 600; color: var(--color-text-primary);">[[ record.animalName ]]</div>
+                                        <div style="font-size: 12px; color: var(--color-text-tertiary);">RFID: [[ record.animalRfid ]]</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge" :class="'badge-' + getTypeClass(record.type)">
+                                    <i :class="getTypeIcon(record.type)" style="margin-right: 4px;"></i>
+                                    [[ record.type ]]
+                                </span>
+                            </td>
+                            <td style="font-weight: 600;">[[ record.weight ]] kg</td>
+                            <td>
+                                <span class="badge" :class="'badge-' + getStatusClass(record.status)">
+                                    [[ record.status ]]
+                                </span>
+                            </td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-calendar" style="color: var(--color-text-tertiary); font-size: 12px;"></i>
+                                    <span>[[ formatDate(record.date) ]]</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="font-size: 13px; color: var(--color-text-primary);">[[ record.treatment || '-' ]]</div>
+                            </td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-user-md" style="color: var(--color-text-tertiary); font-size: 12px;"></i>
+                                    <span style="font-size: 13px;">[[ record.veterinarian ]]</span>
+                                </div>                            </td>
+                            <td>
+                                <div style="display: flex; gap: 8px; justify-content: center;">
+                                    <button @click="viewRecord(record)" class="btn-icon-action" 
+                                        style="width: 36px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); border: none; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);"
+                                        title="Ver detalles"
+                                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(59, 130, 246, 0.5)'"
+                                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(59, 130, 246, 0.3)'">
+                                        <i class="fas fa-eye" style="font-size: 14px;"></i>
+                                    </button>
+                                    <button @click="editRecord(record)" class="btn-icon-action" 
+                                        style="width: 36px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); border: none; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);"
+                                        title="Editar"
+                                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(245, 158, 11, 0.5)'"
+                                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(245, 158, 11, 0.3)'">
+                                        <i class="fas fa-edit" style="font-size: 14px;"></i>
+                                    </button>
+                                    <button @click="deleteRecord(record)" class="btn-icon-action" 
+                                        style="width: 36px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); border: none; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);"
+                                        title="Eliminar"
+                                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(239, 68, 68, 0.5)'"
+                                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(239, 68, 68, 0.3)'">
+                                        <i class="fas fa-trash" style="font-size: 14px;"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Empty State -->
+            <div v-else style="padding: 4rem 2rem; text-align: center;">
+                <div style="display: inline-flex; padding: 1.5rem; background: var(--color-bg-tertiary); border-radius: 50%; margin-bottom: 1rem;">
+                    <i class="fas fa-file-medical" style="font-size: 48px; color: var(--color-text-tertiary);"></i>
+                </div>
+                <h3 style="font-size: 18px; font-weight: 600; color: var(--color-text-primary); margin-bottom: 0.5rem;">
+                    No se encontraron registros
+                </h3>
+                <p style="color: var(--color-text-secondary); font-size: 14px; margin-bottom: 1.5rem;">
+                    [[ searchQuery || filterStatus || filterType
+                        ? 'Intenta ajustar los filtros de búsqueda' 
+                        : 'Comienza agregando tu primer registro de salud' ]]
+                </p>
+                <button @click="openAddModal()" class="btn btn-primary">
+                    <i class="fas fa-plus" style="margin-right: 8px;"></i>
+                    Agregar Registro
+                </button>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div v-if="!isEmpty && !loading" class="card-footer" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; flex-wrap: wrap; gap: 1rem;">
+            <div style="color: var(--color-text-secondary); font-size: 14px;">
+                Mostrando 
+                <strong>[[ (currentPage - 1) * itemsPerPage + 1 ]]</strong>
+                - 
+                <strong>[[ Math.min(currentPage * itemsPerPage, filteredRecords.length) ]]</strong>
+                de 
+                <strong>[[ filteredRecords.length ]]</strong> 
+                registros
+            </div>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <button @click="changePage(currentPage - 1)" class="btn btn-sm btn-outline" :disabled="currentPage === 1">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button 
+                    v-for="page in displayPages" 
+                    :key="page"
+                    @click="changePage(page)"
+                    class="btn btn-sm"
+                    :class="page === currentPage ? 'btn-primary' : 'btn-outline'"
+                >
+                    [[ page ]]
+                </button>
+                <button @click="changePage(currentPage + 1)" class="btn btn-sm btn-outline" :disabled="currentPage === totalPages">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>    <!-- Add/Edit Health Record Modal - Modern Design -->
+    <transition name="modal">
+        <div v-if="showModal" class="modal-overlay" @click.self="closeModal()">
+            <div class="modal modal-lg" style="max-width: 1000px; animation: scaleIn 0.3s ease-out; border-radius: 16px; overflow: hidden;">
+                <!-- Modal Header with Gradient -->
+                <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-bottom: none;">
+                    <div>
+                        <h2 class="modal-title" style="color: white; font-size: 24px; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px);">
+                                <i :class="modalMode === 'add' ? 'fas fa-plus' : 'fas fa-edit'" style="font-size: 20px;"></i>
+                            </div>
+                            <span>[[ modalMode === 'add' ? 'Nuevo Registro de Salud' : 'Editar Registro' ]]</span>
+                        </h2>
+                        <p style="color: rgba(255,255,255,0.9); margin: 0.5rem 0 0 60px; font-size: 14px;">
+                            [[ modalMode === 'add' ? 'Registra información detallada del estado de salud del animal' : 'Actualiza la información del registro de salud' ]]
+                        </p>
+                    </div>
+                    <button @click="closeModal()" class="btn-close" style="background: rgba(255,255,255,0.2); color: white; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3);">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="modal-body" style="padding: 2rem;">
+                    <form @submit.prevent="saveRecord()">
+                        <!-- Section 1: Información Básica -->
+                        <div style="margin-bottom: 2rem;">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid var(--color-border);">
+                                <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-info-circle" style="color: white; font-size: 18px;"></i>
+                                </div>
+                                <div>
+                                    <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: var(--color-text-primary);">Información Básica</h3>
+                                    <p style="margin: 0; font-size: 13px; color: var(--color-text-tertiary);">Datos generales del registro</p>
+                                </div>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;">
+                                <!-- Animal Selection -->
+                                <div class="form-group">
+                                    <label class="form-label" style="font-weight: 600; font-size: 13px; color: var(--color-text-secondary); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                                        <i class="fas fa-paw" style="color: #667eea;"></i>
+                                        Animal <span style="color: #EF4444;">*</span>
+                                    </label>
+                                    <select v-model="formData.animalId" class="form-select" style="height: 48px; border-radius: 10px; border: 2px solid var(--color-border); font-size: 14px;" required>
+                                        <option value="">Seleccionar animal</option>
+                                        <option value="1">🐄 Bella - RF12345</option>
+                                        <option value="2">🐂 Max - RF23456</option>
+                                        <option value="3">🐄 Luna - RF34567</option>
+                                        <option value="4">🐂 Rocky - RF45678</option>
+                                        <option value="5">🐄 Estrella - RF56789</option>
+                                    </select>
+                                </div>
+
+                                <!-- Type -->
+                                <div class="form-group">
+                                    <label class="form-label" style="font-weight: 600; font-size: 13px; color: var(--color-text-secondary); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                                        <i class="fas fa-clipboard-check" style="color: #10B981;"></i>
+                                        Tipo de Registro <span style="color: #EF4444;">*</span>
+                                    </label>
+                                    <select v-model="formData.type" class="form-select" style="height: 48px; border-radius: 10px; border: 2px solid var(--color-border); font-size: 14px;" required>
+                                        <option value="">Seleccionar tipo</option>
+                                        <option value="revisión">📋 Revisión General</option>
+                                        <option value="vacuna">💉 Vacunación</option>
+                                        <option value="tratamiento">💊 Tratamiento</option>
+                                        <option value="emergencia">🚨 Emergencia</option>
+                                    </select>
+                                </div>
+
+                                <!-- Date -->
+                                <div class="form-group">
+                                    <label class="form-label" style="font-weight: 600; font-size: 13px; color: var(--color-text-secondary); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                                        <i class="fas fa-calendar" style="color: #F59E0B;"></i>
+                                        Fecha de Revisión <span style="color: #EF4444;">*</span>
+                                    </label>
+                                    <input 
+                                        type="date" 
+                                        v-model="formData.date"
+                                        class="form-control"
+                                        style="height: 48px; border-radius: 10px; border: 2px solid var(--color-border); font-size: 14px;"
+                                        required
+                                    >
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section 2: Signos Vitales -->
+                        <div style="margin-bottom: 2rem;">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid var(--color-border);">
+                                <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-heartbeat" style="color: white; font-size: 18px;"></i>
+                                </div>
+                                <div>
+                                    <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: var(--color-text-primary);">Signos Vitales</h3>
+                                    <p style="margin: 0; font-size: 13px; color: var(--color-text-tertiary);">Parámetros de salud del animal</p>
+                                </div>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;">
+                                <!-- Weight -->
+                                <div class="form-group">
+                                    <label class="form-label" style="font-weight: 600; font-size: 13px; color: var(--color-text-secondary); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                                        <i class="fas fa-weight" style="color: #8B5CF6;"></i>
+                                        Peso <span style="color: #EF4444;">*</span>
+                                    </label>
+                                    <div style="position: relative;">
+                                        <input 
+                                            type="number" 
+                                            v-model="formData.weight"
+                                            class="form-control"
+                                            placeholder="0.0"
+                                            min="0"
+                                            step="0.1"
+                                            style="height: 48px; border-radius: 10px; border: 2px solid var(--color-border); font-size: 14px; padding-right: 50px;"
+                                            required
+                                        >
+                                        <span style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--color-text-tertiary); font-weight: 600; font-size: 13px;">kg</span>
+                                    </div>
+                                </div>
+
+                                <!-- Temperature -->
+                                <div class="form-group">
+                                    <label class="form-label" style="font-weight: 600; font-size: 13px; color: var(--color-text-secondary); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                                        <i class="fas fa-thermometer-half" style="color: #EF4444;"></i>
+                                        Temperatura
+                                    </label>
+                                    <div style="position: relative;">
+                                        <input 
+                                            type="number" 
+                                            v-model="formData.temperature"
+                                            class="form-control"
+                                            placeholder="38.5"
+                                            min="30"
+                                            max="45"
+                                            step="0.1"
+                                            style="height: 48px; border-radius: 10px; border: 2px solid var(--color-border); font-size: 14px; padding-right: 50px;"
+                                        >
+                                        <span style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--color-text-tertiary); font-weight: 600; font-size: 13px;">°C</span>
+                                    </div>
+                                </div>
+
+                                <!-- Status -->
+                                <div class="form-group">
+                                    <label class="form-label" style="font-weight: 600; font-size: 13px; color: var(--color-text-secondary); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                                        <i class="fas fa-heartbeat" style="color: #10B981;"></i>
+                                        Estado de Salud <span style="color: #EF4444;">*</span>
+                                    </label>
+                                    <select v-model="formData.status" class="form-select" style="height: 48px; border-radius: 10px; border: 2px solid var(--color-border); font-size: 14px;" required>
+                                        <option value="">Seleccionar estado</option>
+                                        <option value="normal">✅ Normal</option>
+                                        <option value="atención">⚠️ Requiere Atención</option>
+                                        <option value="crítico">🚨 Crítico</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section 3: Tratamiento y Personal -->
+                        <div style="margin-bottom: 2rem;">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid var(--color-border);">
+                                <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-syringe" style="color: white; font-size: 18px;"></i>
+                                </div>
+                                <div>
+                                    <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: var(--color-text-primary);">Tratamiento y Personal</h3>
+                                    <p style="margin: 0; font-size: 13px; color: var(--color-text-tertiary);">Información del procedimiento y veterinario</p>
+                                </div>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
+                                <!-- Treatment/Vaccine -->
+                                <div class="form-group">
+                                    <label class="form-label" style="font-weight: 600; font-size: 13px; color: var(--color-text-secondary); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                                        <i class="fas fa-syringe" style="color: #3B82F6;"></i>
+                                        Vacuna / Tratamiento
+                                    </label>
+                                    <input 
+                                        type="text" 
+                                        v-model="formData.treatment"
+                                        class="form-control"
+                                        placeholder="Ej: Vacuna Aftosa, Antibiótico X"
+                                        style="height: 48px; border-radius: 10px; border: 2px solid var(--color-border); font-size: 14px;"
+                                    >
+                                </div>
+
+                                <!-- Veterinarian -->
+                                <div class="form-group">
+                                    <label class="form-label" style="font-weight: 600; font-size: 13px; color: var(--color-text-secondary); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                                        <i class="fas fa-user-md" style="color: #10B981;"></i>
+                                        Veterinario <span style="color: #EF4444;">*</span>
+                                    </label>
+                                    <input 
+                                        type="text" 
+                                        v-model="formData.veterinarian"
+                                        class="form-control"
+                                        placeholder="Dr. Juan Pérez"
+                                        style="height: 48px; border-radius: 10px; border: 2px solid var(--color-border); font-size: 14px;"
+                                        required
+                                    >
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section 4: Observaciones -->
+                        <div style="margin-bottom: 2rem;">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid var(--color-border);">
+                                <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-file-medical-alt" style="color: white; font-size: 18px;"></i>
+                                </div>
+                                <div>
+                                    <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: var(--color-text-primary);">Observaciones Clínicas</h3>
+                                    <p style="margin: 0; font-size: 13px; color: var(--color-text-tertiary);">Notas adicionales del veterinario</p>
+                                </div>
+                            </div>
+
+                            <div class="form-group" style="margin: 0;">
+                                <textarea 
+                                    v-model="formData.observations"
+                                    class="form-control"
+                                    rows="4"
+                                    placeholder="Registra síntomas observados, comportamiento del animal, tratamientos previos, recomendaciones adicionales..."
+                                    style="border-radius: 10px; border: 2px solid var(--color-border); font-size: 14px; padding: 16px; resize: vertical; min-height: 120px;"
+                                ></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Modal Footer with Enhanced Buttons -->
+                        <div class="modal-footer" style="margin-top: 2rem; padding-top: 2rem; border-top: 2px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; align-items: center; gap: 8px; color: var(--color-text-tertiary); font-size: 13px;">
+                                <i class="fas fa-info-circle"></i>
+                                <span>Los campos con <span style="color: #EF4444; font-weight: 600;">*</span> son obligatorios</span>
+                            </div>
+                            <div style="display: flex; gap: 12px;">
+                                <button type="button" @click="closeModal()" class="btn btn-outline" style="padding: 12px 28px; border-radius: 10px; font-weight: 600; font-size: 14px; height: 48px;">
+                                    <i class="fas fa-times" style="margin-right: 8px;"></i>
+                                    Cancelar
+                                </button>
+                                <button type="submit" class="btn btn-primary" style="padding: 12px 32px; border-radius: 10px; font-weight: 600; font-size: 14px; height: 48px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);">
+                                    <i :class="modalMode === 'add' ? 'fas fa-check' : 'fas fa-save'" style="margin-right: 8px;"></i>
+                                    [[ modalMode === 'add' ? 'Agregar Registro' : 'Guardar Cambios' ]]
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </transition>
+</div>
+
+<!-- Additional Styles -->
+<style>
+    /* Vue.js v-cloak directive */
+    [v-cloak] {
+        display: none !important;
+    }
+
+    /* Enhanced Search Input Styles */
+    .search-input-enhanced:focus {
+        border-color: var(--color-primary) !important;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+        outline: none;
+    }
+
+    .search-clear-btn:hover {
+        background: var(--color-error) !important;
+        color: white !important;
+    }
+
+    /* Action Buttons */
+    .btn-icon-action {
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+
+    .btn-icon-action:hover {
+        transform: scale(1.1);
+    }
+
+    .btn-icon-primary {
+        color: var(--color-primary);
+    }
+
+    .btn-icon-primary:hover {
+        background: rgba(59, 130, 246, 0.1);
+    }
+
+    .btn-icon-warning {
+        color: var(--color-warning);
+    }
+
+    .btn-icon-warning:hover {
+        background: rgba(245, 158, 11, 0.1);
+    }
+
+    .btn-icon-danger {
+        color: var(--color-error);
+    }
+
+    .btn-icon-danger:hover {
+        background: rgba(239, 68, 68, 0.1);
+    }
+
+    /* Enhanced Table Styles */
+    .table-responsive {
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .table {
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .table thead {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .table thead th {
+        color: white !important;
+        font-weight: 600;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 16px 12px !important;
+        border: none !important;
+        white-space: nowrap;
+    }
+
+    .table tbody tr {
+        background: white;
+        border-bottom: 1px solid #f1f5f9;
+        transition: all 0.2s ease;
+    }
+
+    .table tbody tr:hover {
+        background: var(--color-bg-secondary);
+        transform: translateX(2px);
+    }
+
+    .table tbody td {
+        padding: 16px 12px !important;
+        vertical-align: middle;
+        border: none !important;
+    }
+
+    .table tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    /* Badge Enhancements */
+    .badge {
+        font-weight: 600;
+        font-size: 12px;
+        padding: 6px 12px;
+        border-radius: 8px;
+        letter-spacing: 0.3px;
+        transition: all 0.2s ease;
+    }
+
+    .badge:hover {
+        transform: scale(1.05);
+    }
+
+    .badge-primary {
+        background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+        color: white;
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+    }
+
+    .badge-success {
+        background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        color: white;
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+    }
+
+    .badge-warning {
+        background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+        color: white;
+        box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+    }
+
+    .badge-danger {
+        background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+        color: white;
+        box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+    }
+
+    .badge-info {
+        background: linear-gradient(135deg, #06B6D4 0%, #0891B2 100%);
+        color: white;
+        box-shadow: 0 2px 8px rgba(6, 182, 212, 0.3);
+    }
+
+    .badge-outline {
+        background: white;
+        border: 2px solid #e2e8f0;
+        color: #64748b;
+        font-weight: 600;
+    }
+
+    /* Input Focus Effects */
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #667eea !important;
+        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1) !important;
+        outline: none;
+        transform: translateY(-1px);
+    }
+
+    /* Loading Spinner */
+    .fa-spinner {
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    /* Modal Animations */
+    @keyframes scaleIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .modal-enter-active,
+    .modal-leave-active {
+        transition: opacity 0.3s ease;
+    }
+
+    .modal-enter-from,
+    .modal-leave-to {
+        opacity: 0;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Vue.js Health Records Manager Component -->
+<script>
+const { createApp } = Vue;
+
+createApp({
+    delimiters: ['[[', ']]'],
+    
+    data() {
+        return {
+            loading: false,
+            records: this.generateSampleData(),
+            filteredRecords: [],
+            showModal: false,
+            modalMode: 'add',
+            currentRecord: null,
+            formData: this.getEmptyForm(),
+            searchQuery: '',
+            filterStatus: '',
+            filterType: '',
+            currentPage: 1,
+            itemsPerPage: 10,
+            totalPages: 1
+        };
+    },
+    
+    computed: {
+        totalRecords() {
+            return this.records.length;
+        },
+        
+        recentCheckups() {
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            return this.records.filter(r => new Date(r.date) >= thirtyDaysAgo).length;
+        },
+        
+        vaccinesApplied() {
+            return this.records.filter(r => r.type === 'vacuna').length;
+        },
+        
+        pendingReviews() {
+            return this.records.filter(r => r.status === 'atención' || r.status === 'crítico').length;
+        },
+        
+        paginatedRecords() {
+            const start = (this.currentPage - 1) * this.itemsPerPage;
+            const end = start + this.itemsPerPage;
+            return this.filteredRecords.slice(start, end);
+        },
+        
+        isEmpty() {
+            return !this.loading && this.filteredRecords.length === 0;
+        },
+        
+        displayPages() {
+            const pages = [];
+            const maxVisible = 5;
+            let start = Math.max(1, this.currentPage - Math.floor(maxVisible / 2));
+            let end = Math.min(this.totalPages, start + maxVisible - 1);
+            
+            if (end - start < maxVisible - 1) {
+                start = Math.max(1, end - maxVisible + 1);
+            }
+            
+            for (let i = start; i <= end; i++) {
+                pages.push(i);
+            }
+            return pages;
+        }
+    },
+    
+    watch: {
+        searchQuery() {
+            this.filterRecords();
+        },
+        
+        filterStatus() {
+            this.filterRecords();
+        },
+        
+        filterType() {
+            this.filterRecords();
+        }
+    },
+    
+    methods: {
+        generateSampleData() {
+            const animals = [
+                { name: 'Bella', rfid: 'RF-12345678', color: '#3B82F6' },
+                { name: 'Max', rfid: 'RF-23456789', color: '#10B981' },
+                { name: 'Luna', rfid: 'RF-34567890', color: '#F59E0B' },
+                { name: 'Rocky', rfid: 'RF-45678901', color: '#EF4444' },
+                { name: 'Estrella', rfid: 'RF-56789012', color: '#8B5CF6' }
+            ];
+            
+            const types = ['revisión', 'vacuna', 'tratamiento', 'emergencia'];
+            const statuses = ['normal', 'atención', 'crítico'];
+            const treatments = [
+                'Vacuna Aftosa', 'Vacuna Brucelosis', 'Antibiótico X', 
+                'Desparasitante', 'Vitamina B12', 'Suero Antiparasitario',
+                'Tratamiento Respiratorio', 'Control de Peso'
+            ];
+            const vets = ['Dr. Juan Pérez', 'Dra. María López', 'Dr. Carlos Ruiz', 'Dra. Ana Torres'];
+            
+            const records = [];
+            for (let i = 1; i <= 47; i++) {
+                const animal = animals[Math.floor(Math.random() * animals.length)];
+                const type = types[Math.floor(Math.random() * types.length)];
+                const date = new Date();
+                date.setDate(date.getDate() - Math.floor(Math.random() * 180));
+                
+                records.push({
+                    id: i,
+                    animalName: animal.name,
+                    animalRfid: animal.rfid,
+                    animalColor: animal.color,
+                    type: type,
+                    weight: (250 + Math.random() * 300).toFixed(1),
+                    status: statuses[Math.floor(Math.random() * statuses.length)],
+                    date: date.toISOString().split('T')[0],
+                    temperature: (37.5 + Math.random() * 2).toFixed(1),
+                    treatment: type === 'vacuna' || type === 'tratamiento' 
+                        ? treatments[Math.floor(Math.random() * treatments.length)] 
+                        : null,
+                    veterinarian: vets[Math.floor(Math.random() * vets.length)],
+                    observations: `Registro de ${type} - Animal en buen estado general.`
+                });
+            }
+            
+            return records.sort((a, b) => new Date(b.date) - new Date(a.date));
+        },
+        
+        loadRecords() {
+            this.loading = true;
+            setTimeout(() => {
+                this.filterRecords();
+                this.loading = false;
+            }, 500);
+        },
+        
+        filterRecords() {
+            let filtered = [...this.records];
+            
+            if (this.searchQuery.trim()) {
+                const query = this.searchQuery.toLowerCase();
+                filtered = filtered.filter(record =>
+                    record.animalName?.toLowerCase().includes(query) ||
+                    record.animalRfid?.toLowerCase().includes(query) ||
+                    record.type?.toLowerCase().includes(query) ||
+                    record.treatment?.toLowerCase().includes(query) ||
+                    record.veterinarian?.toLowerCase().includes(query)
+                );
+            }
+            
+            if (this.filterStatus) {
+                filtered = filtered.filter(record => record.status === this.filterStatus);
+            }
+            
+            if (this.filterType) {
+                filtered = filtered.filter(record => record.type === this.filterType);
+            }
+            
+            this.filteredRecords = filtered;
+            this.currentPage = 1;
+            this.updatePagination();
+        },
+        
+        updatePagination() {
+            this.totalPages = Math.ceil(this.filteredRecords.length / this.itemsPerPage);
+        },
+          changePage(page) {
+            if (page >= 1 && page <= this.totalPages) {
+                this.currentPage = page;
+                // ✅ UX Optimizado: Sin scroll automático - mantiene la posición del usuario
+            }
+        },
+        
+        openAddModal() {
+            this.modalMode = 'add';
+            this.formData = this.getEmptyForm();
+            this.showModal = true;
+        },
+        
+        viewRecord(record) {
+            Swal.fire({
+                title: `Registro #${record.id} - ${record.animalName}`,
+                html: `
+                    <div style="text-align: left; max-height: 400px; overflow-y: auto;">
+                        <p><strong>🐄 Animal:</strong> ${record.animalName} (${record.animalRfid})</p>
+                        <p><strong>📋 Tipo:</strong> ${record.type}</p>
+                        <p><strong>⚖️ Peso:</strong> ${record.weight} kg</p>
+                        <p><strong>💚 Estado:</strong> ${record.status}</p>
+                        <p><strong>📅 Fecha:</strong> ${this.formatDate(record.date)}</p>
+                        <p><strong>🌡️ Temperatura:</strong> ${record.temperature}°C</p>
+                        ${record.treatment ? `<p><strong>💉 Tratamiento:</strong> ${record.treatment}</p>` : ''}
+                        <p><strong>👨‍⚕️ Veterinario:</strong> ${record.veterinarian}</p>
+                        <p><strong>📝 Observaciones:</strong> ${record.observations || 'Sin observaciones'}</p>
+                    </div>
+                `,
+                icon: 'info',
+                confirmButtonText: 'Cerrar',
+                width: '600px'
+            });
+        },
+        
+        editRecord(record) {
+            this.modalMode = 'edit';
+            this.currentRecord = record;
+            this.formData = {
+                animalId: '1', // Simulado
+                type: record.type,
+                weight: record.weight,
+                status: record.status,
+                date: record.date,
+                temperature: record.temperature,
+                treatment: record.treatment || '',
+                veterinarian: record.veterinarian,
+                observations: record.observations || ''
+            };
+            this.showModal = true;
+        },
+        
+        async deleteRecord(record) {
+            const result = await Swal.fire({
+                title: '¿Estás seguro?',
+                html: `¿Deseas eliminar el registro #${record.id} de <strong>${record.animalName}</strong>?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            });
+            
+            if (result.isConfirmed) {
+                this.records = this.records.filter(r => r.id !== record.id);
+                this.filterRecords();
+                
+                Swal.fire({
+                    title: '¡Eliminado!',
+                    text: 'El registro ha sido eliminado exitosamente.',
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            }
+        },
+        
+        async saveRecord() {
+            if (!this.validateForm()) return;
+            
+            try {
+                if (this.modalMode === 'add') {
+                    const newRecord = {
+                        id: Math.max(...this.records.map(r => r.id)) + 1,
+                        animalName: 'Bella', // Simulado
+                        animalRfid: 'RF-12345678',
+                        animalColor: '#3B82F6',
+                        type: this.formData.type,
+                        weight: parseFloat(this.formData.weight),
+                        status: this.formData.status,
+                        date: this.formData.date,
+                        temperature: parseFloat(this.formData.temperature) || 38.5,
+                        treatment: this.formData.treatment,
+                        veterinarian: this.formData.veterinarian,
+                        observations: this.formData.observations
+                    };
+                    
+                    this.records.unshift(newRecord);
+                    
+                } else {
+                    const index = this.records.findIndex(r => r.id === this.currentRecord.id);
+                    if (index !== -1) {
+                        this.records[index] = {
+                            ...this.records[index],
+                            type: this.formData.type,
+                            weight: parseFloat(this.formData.weight),
+                            status: this.formData.status,
+                            date: this.formData.date,
+                            temperature: parseFloat(this.formData.temperature) || 38.5,
+                            treatment: this.formData.treatment,
+                            veterinarian: this.formData.veterinarian,
+                            observations: this.formData.observations
+                        };
+                    }
+                }
+                
+                this.filterRecords();
+                this.closeModal();
+                
+                Swal.fire({
+                    title: '¡Guardado!',
+                    text: `Registro ${this.modalMode === 'add' ? 'agregado' : 'actualizado'} exitosamente.`,
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                
+            } catch (error) {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Error al guardar el registro.',
+                    icon: 'error'
+                });
+            }
+        },
+        
+        validateForm() {
+            if (!this.formData.animalId || !this.formData.type || !this.formData.weight || 
+                !this.formData.status || !this.formData.date || !this.formData.veterinarian) {
+                Swal.fire({
+                    title: 'Campos requeridos',
+                    text: 'Por favor completa todos los campos obligatorios.',
+                    icon: 'warning'
+                });
+                return false;
+            }
+            return true;
+        },
+        
+        closeModal() {
+            this.showModal = false;
+            this.formData = this.getEmptyForm();
+            this.currentRecord = null;
+        },
+        
+        getEmptyForm() {
+            return {
+                animalId: '',
+                type: '',
+                weight: '',
+                status: '',
+                date: new Date().toISOString().split('T')[0],
+                temperature: '',
+                treatment: '',
+                veterinarian: '',
+                observations: ''
+            };
+        },
+        
+        getTypeClass(type) {
+            const classes = {
+                'revisión': 'primary',
+                'vacuna': 'success',
+                'tratamiento': 'warning',
+                'emergencia': 'danger'
+            };
+            return classes[type] || 'primary';
+        },
+        
+        getTypeIcon(type) {
+            const icons = {
+                'revisión': 'fas fa-clipboard-check',
+                'vacuna': 'fas fa-syringe',
+                'tratamiento': 'fas fa-pills',
+                'emergencia': 'fas fa-ambulance'
+            };
+            return icons[type] || 'fas fa-file-medical';
+        },
+        
+        getStatusClass(status) {
+            const classes = {
+                'normal': 'success',
+                'atención': 'warning',
+                'crítico': 'danger'
+            };
+            return classes[status] || 'success';
+        },
+        
+        formatDate(dateString) {
+            const date = new Date(dateString);
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return date.toLocaleDateString('es-ES', options);
+        }
+    },
+    
+    mounted() {
+        this.filterRecords();
+    }
+}).mount('#healthApp');
+</script>
+{% endblock %}

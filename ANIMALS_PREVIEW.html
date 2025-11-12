@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐄 Animals Page - Preview Visual</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <style>
+        :root {
+            --color-primary: #3B82F6;
+            --color-success: #10B981;
+            --color-warning: #F59E0B;
+            --color-error: #EF4444;
+            --color-text-primary: #1F2937;
+            --color-text-secondary: #6B7280;
+            --color-text-tertiary: #9CA3AF;
+            --color-bg-primary: #FFFFFF;
+            --color-bg-secondary: #F9FAFB;
+            --color-bg-tertiary: #F3F4F6;
+            --color-border: #E5E7EB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--color-bg-secondary);
+            color: var(--color-text-primary);
+            padding: 2rem;
+        }
+
+        .preview-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .preview-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%);
+            border-radius: 16px;
+            color: white;
+        }
+
+        .preview-header h1 {
+            font-size: 32px;
+            margin-bottom: 0.5rem;
+        }
+
+        .preview-header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .badge {
+            display: inline-flex;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-primary {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3B82F6;
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10B981;
+        }
+
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: #F59E0B;
+        }
+
+        .badge-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: #EF4444;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: var(--color-bg-secondary);
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--color-text-secondary);
+        }
+
+        td {
+            padding: 1rem;
+            border-top: 1px solid var(--color-border);
+        }
+
+        tbody tr:hover {
+            background: var(--color-bg-secondary);
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            color: white;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563EB;
+        }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .action-btn.view {
+            color: var(--color-primary);
+        }
+
+        .action-btn.view:hover {
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .action-btn.edit {
+            color: var(--color-warning);
+        }
+
+        .action-btn.edit:hover {
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .action-btn.delete {
+            color: var(--color-error);
+        }
+
+        .action-btn.delete:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #D1FAE5;
+            border-radius: 8px;
+            color: #065F46;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-card h3 {
+            font-size: 16px;
+            margin-bottom: 0.5rem;
+            color: var(--color-primary);
+        }
+
+        .feature-card ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .feature-card li {
+            padding: 0.25rem 0;
+            color: var(--color-text-secondary);
+            font-size: 14px;
+        }
+
+        .feature-card li::before {
+            content: "✅ ";
+            margin-right: 0.5rem;
+        }
+
+        .screenshot-note {
+            background: #FEF3C7;
+            border-left: 4px solid #F59E0B;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 2rem;
+        }
+
+        .screenshot-note h3 {
+            color: #92400E;
+            margin-bottom: 0.5rem;
+        }
+
+        .screenshot-note p {
+            color: #78350F;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="preview-container">
+        <!-- Header -->
+        <div class="preview-header">
+            <h1>🐄 Módulo de Gestión de Animales</h1>
+            <p>Preview del diseño implementado en animals.html</p>
+        </div>
+
+        <!-- Stats Cards Preview -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                    <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-database" style="color: white; font-size: 20px;"></i>
+                    </div>
+                    <span class="badge badge-success">+12%</span>
+                </div>
+                <div style="font-size: 36px; font-weight: 700; margin-bottom: 0.5rem;">155</div>
+                <div style="color: var(--color-text-secondary); font-size: 14px;">Total Animales</div>
+                <div style="color: var(--color-text-tertiary); font-size: 12px; margin-top: 4px;">Registrados en el sistema</div>
+            </div>
+
+            <div class="stat-card">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                    <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-heart-pulse" style="color: white; font-size: 20px;"></i>
+                    </div>
+                    <span class="badge badge-success">85%</span>
+                </div>
+                <div style="font-size: 36px; font-weight: 700; margin-bottom: 0.5rem;">132</div>
+                <div style="color: var(--color-text-secondary); font-size: 14px;">Saludables</div>
+                <div style="color: var(--color-text-tertiary); font-size: 12px; margin-top: 4px;">Estado óptimo</div>
+            </div>
+
+            <div class="stat-card">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                    <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-exclamation-triangle" style="color: white; font-size: 20px;"></i>
+                    </div>
+                    <span class="badge badge-warning">Monitor</span>
+                </div>
+                <div style="font-size: 36px; font-weight: 700; margin-bottom: 0.5rem;">18</div>
+                <div style="color: var(--color-text-secondary); font-size: 14px;">En Observación</div>
+                <div style="color: var(--color-text-tertiary); font-size: 12px; margin-top: 4px;">Requieren atención</div>
+            </div>
+
+            <div class="stat-card">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                    <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-exclamation-circle" style="color: white; font-size: 20px;"></i>
+                    </div>
+                    <span class="badge badge-danger">Urgente</span>
+                </div>
+                <div style="font-size: 36px; font-weight: 700; margin-bottom: 0.5rem;">5</div>
+                <div style="color: var(--color-text-secondary); font-size: 14px;">Críticos</div>
+                <div style="color: var(--color-text-tertiary); font-size: 12px; margin-top: 4px;">Intervención inmediata</div>
+            </div>
+        </div>
+
+        <!-- Table Preview -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-list"></i>
+                    Lista de Animales
+                </h3>
+                <span class="badge badge-primary">155 animales</span>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>RFID TAG</th>
+                            <th>NOMBRE</th>
+                            <th>RAZA</th>
+                            <th>EDAD</th>
+                            <th>ESTADO</th>
+                            <th>UBICACIÓN</th>
+                            <th style="text-align: center;">ACCIONES</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="font-weight: 600;">#1</td>
+                            <td>
+                                <div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: var(--color-bg-tertiary); border-radius: 6px; font-family: 'Courier New', monospace; font-size: 13px;">
+                                    <i class="fas fa-wifi" style="font-size: 10px;"></i>
+                                    <span>RF-A1B2C3D4</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div class="avatar" style="background: #3B82F6;">A</div>
+                                    <div>
+                                        <div style="font-weight: 600;">Animal-001</div>
+                                        <div style="font-size: 12px; color: var(--color-text-tertiary);">Código: AG0001</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge" style="border: 1px solid var(--color-border); background: white; color: var(--color-text-secondary);">Holstein</span></td>
+                            <td>2a 6m</td>
+                            <td><span class="badge badge-success">Saludable</span></td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-map-marker-alt" style="color: var(--color-text-tertiary); font-size: 12px;"></i>
+                                    <span>Sector A - Pastoreo</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="display: flex; gap: 6px; justify-content: center;">
+                                    <button class="action-btn view"><i class="fas fa-eye"></i></button>
+                                    <button class="action-btn edit"><i class="fas fa-edit"></i></button>
+                                    <button class="action-btn delete"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">#2</td>
+                            <td>
+                                <div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: var(--color-bg-tertiary); border-radius: 6px; font-family: 'Courier New', monospace; font-size: 13px;">
+                                    <i class="fas fa-wifi" style="font-size: 10px;"></i>
+                                    <span>RF-E5F6G7H8</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div class="avatar" style="background: #10B981;">A</div>
+                                    <div>
+                                        <div style="font-weight: 600;">Animal-002</div>
+                                        <div style="font-size: 12px; color: var(--color-text-tertiary);">Código: AG0002</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge" style="border: 1px solid var(--color-border); background: white; color: var(--color-text-secondary);">Brahman</span></td>
+                            <td>3a 1m</td>
+                            <td><span class="badge badge-warning">En Observación</span></td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-map-marker-alt" style="color: var(--color-text-tertiary); font-size: 12px;"></i>
+                                    <span>Corral 1</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="display: flex; gap: 6px; justify-content: center;">
+                                    <button class="action-btn view"><i class="fas fa-eye"></i></button>
+                                    <button class="action-btn edit"><i class="fas fa-edit"></i></button>
+                                    <button class="action-btn delete"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">#3</td>
+                            <td>
+                                <div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: var(--color-bg-tertiary); border-radius: 6px; font-family: 'Courier New', monospace; font-size: 13px;">
+                                    <i class="fas fa-wifi" style="font-size: 10px;"></i>
+                                    <span>RF-I9J0K1L2</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div class="avatar" style="background: #EF4444;">A</div>
+                                    <div>
+                                        <div style="font-weight: 600;">Animal-003</div>
+                                        <div style="font-size: 12px; color: var(--color-text-tertiary);">Código: AG0003</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge" style="border: 1px solid var(--color-border); background: white; color: var(--color-text-secondary);">Angus</span></td>
+                            <td>1a 8m</td>
+                            <td><span class="badge badge-danger">Crítico</span></td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-map-marker-alt" style="color: var(--color-text-tertiary); font-size: 12px;"></i>
+                                    <span>Zona Norte</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="display: flex; gap: 6px; justify-content: center;">
+                                    <button class="action-btn view"><i class="fas fa-eye"></i></button>
+                                    <button class="action-btn edit"><i class="fas fa-edit"></i></button>
+                                    <button class="action-btn delete"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Status -->
+        <div class="status-indicator">
+            <i class="fas fa-check-circle" style="font-size: 24px;"></i>
+            <div>
+                <strong>✅ Página Funcional</strong>
+                <p style="margin-top: 4px; font-size: 14px;">El módulo animals.html está completamente operativo en http://localhost:5000/animals</p>
+            </div>
+        </div>
+
+        <!-- Features -->
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3><i class="fas fa-chart-line"></i> Estadísticas</h3>
+                <ul>
+                    <li>4 cards con métricas</li>
+                    <li>Contadores en tiempo real</li>
+                    <li>Porcentajes calculados</li>
+                    <li>Iconos con gradientes</li>
+                    <li>Badges de tendencia</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <h3><i class="fas fa-search"></i> Búsqueda y Filtros</h3>
+                <ul>
+                    <li>Búsqueda en tiempo real</li>
+                    <li>Filtro por estado</li>
+                    <li>Filtro por raza</li>
+                    <li>Combinación de filtros</li>
+                    <li>Botón de actualizar</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <h3><i class="fas fa-table"></i> Tabla Interactiva</h3>
+                <ul>
+                    <li>155 animales renderizados</li>
+                    <li>Avatares coloridos</li>
+                    <li>Badges de estado</li>
+                    <li>Hover effects</li>
+                    <li>Responsive design</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <h3><i class="fas fa-cog"></i> CRUD Completo</h3>
+                <ul>
+                    <li>Ver detalles</li>
+                    <li>Agregar nuevo</li>
+                    <li>Editar existente</li>
+                    <li>Eliminar con confirmación</li>
+                    <li>Validación de formularios</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <h3><i class="fas fa-list-ol"></i> Paginación</h3>
+                <ul>
+                    <li>10 items por página</li>
+                    <li>Navegación con números</li>
+                    <li>Botones anterior/siguiente</li>
+                    <li>Información de registros</li>
+                    <li>Scroll suave al cambiar</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <h3><i class="fas fa-mobile-alt"></i> Responsive</h3>
+                <ul>
+                    <li>Adaptativo a móviles</li>
+                    <li>Stats apiladas</li>
+                    <li>Tabla con scroll</li>
+                    <li>Botones táctiles</li>
+                    <li>Formularios optimizados</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Note -->
+        <div class="screenshot-note">
+            <h3><i class="fas fa-info-circle"></i> Cómo Acceder</h3>
+            <p><strong>1.</strong> Asegúrate de que el servidor Flask esté corriendo: <code>python app.py</code></p>
+            <p><strong>2.</strong> Abre tu navegador y ve a: <code>http://localhost:5000/animals</code></p>
+            <p><strong>3.</strong> Deberías ver exactamente este diseño pero con Vue.js funcional</p>
+        </div>
+    </div>
+</body>
+</html>

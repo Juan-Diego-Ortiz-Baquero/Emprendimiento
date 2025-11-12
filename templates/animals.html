@@ -1,0 +1,954 @@
+{% extends "layout.html" %}
+
+{% block title %}Gestión de Animales - {{ app_name }}{% endblock %}
+
+{% block content %}
+<!-- Animals Management Module -->
+<div id="animalsApp" v-cloak>
+    <!-- Header Section -->
+    <div class="page-header" style="margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h1 style="font-size: 28px; font-weight: 700; color: var(--color-text-primary); margin-bottom: 0.5rem;">
+                    <i class="fas fa-paw" style="color: var(--color-primary); margin-right: 0.5rem;"></i>
+                    Gestión de Animales
+                </h1>
+                <p style="color: var(--color-text-secondary); font-size: 14px;">
+                    Administra y monitorea tu ganado en tiempo real
+                </p>
+            </div>
+            <button @click="openAddModal()" class="btn btn-primary" style="padding: 12px 24px; font-size: 14px; font-weight: 600;">
+                <i class="fas fa-plus" style="margin-right: 8px;"></i>
+                Agregar Animal
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <!-- Total Animals Card -->
+        <div class="stat-card stat-card-primary">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-database" style="color: white; font-size: 20px;"></i>
+                </div>
+                <div style="display: flex; align-items: center; gap: 4px; padding: 4px 10px; background: rgba(16, 185, 129, 0.1); border-radius: 20px;">
+                    <i class="fas fa-arrow-up" style="color: #10B981; font-size: 10px;"></i>
+                    <span style="color: #10B981; font-size: 12px; font-weight: 600;">+12%</span>
+                </div>
+            </div>
+            <div style="font-size: 36px; font-weight: 700; color: var(--color-text-primary); margin-bottom: 0.5rem;">[[ totalAnimals ]]</div>
+            <div style="color: var(--color-text-secondary); font-size: 14px; font-weight: 500;">Total Animales</div>
+            <div style="color: var(--color-text-tertiary); font-size: 12px; margin-top: 4px;">Registrados en el sistema</div>
+        </div>
+
+        <!-- Healthy Animals Card -->
+        <div class="stat-card stat-card-success">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-heart-pulse" style="color: white; font-size: 20px;"></i>
+                </div>
+                <div style="display: flex; align-items: center; gap: 4px; padding: 4px 10px; background: rgba(16, 185, 129, 0.1); border-radius: 20px;">
+                    <i class="fas fa-check-circle" style="color: #10B981; font-size: 10px;"></i>
+                    <span style="color: #10B981; font-size: 12px; font-weight: 600;">[[ healthyPercentage ]]%</span>
+                </div>
+            </div>
+            <div style="font-size: 36px; font-weight: 700; color: var(--color-text-primary); margin-bottom: 0.5rem;">[[ healthyCount ]]</div>
+            <div style="color: var(--color-text-secondary); font-size: 14px; font-weight: 500;">Saludables</div>
+            <div style="color: var(--color-text-tertiary); font-size: 12px; margin-top: 4px;">Estado óptimo</div>
+        </div>
+
+        <!-- Warning Animals Card -->
+        <div class="stat-card stat-card-warning">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-exclamation-triangle" style="color: white; font-size: 20px;"></i>
+                </div>
+                <div style="display: flex; align-items: center; gap: 4px; padding: 4px 10px; background: rgba(245, 158, 11, 0.1); border-radius: 20px;">
+                    <i class="fas fa-eye" style="color: #F59E0B; font-size: 10px;"></i>
+                    <span style="color: #F59E0B; font-size: 12px; font-weight: 600;">Monitor</span>
+                </div>
+            </div>
+            <div style="font-size: 36px; font-weight: 700; color: var(--color-text-primary); margin-bottom: 0.5rem;">[[ warningCount ]]</div>
+            <div style="color: var(--color-text-secondary); font-size: 14px; font-weight: 500;">En Observación</div>
+            <div style="color: var(--color-text-tertiary); font-size: 12px; margin-top: 4px;">Requieren atención</div>
+        </div>
+
+        <!-- Critical Animals Card -->
+        <div class="stat-card stat-card-danger">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-exclamation-circle" style="color: white; font-size: 20px;"></i>
+                </div>
+                <div style="display: flex; align-items: center; gap: 4px; padding: 4px 10px; background: rgba(239, 68, 68, 0.1); border-radius: 20px;">
+                    <i class="fas fa-arrow-down" style="color: #EF4444; font-size: 10px;"></i>
+                    <span style="color: #EF4444; font-size: 12px; font-weight: 600;">Urgente</span>
+                </div>
+            </div>
+            <div style="font-size: 36px; font-weight: 700; color: var(--color-text-primary); margin-bottom: 0.5rem;">[[ criticalCount ]]</div>
+            <div style="color: var(--color-text-secondary); font-size: 14px; font-weight: 500;">Críticos</div>
+            <div style="color: var(--color-text-tertiary); font-size: 12px; margin-top: 4px;">Intervención inmediata</div>
+        </div>
+    </div>    <!-- Filters and Search Bar -->
+    <div class="card animated-slide-up" style="margin-top: 2rem;">
+        <div class="card-body" style="padding: 1.5rem;">
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+                <!-- Enhanced Search Input -->
+                <div style="flex: 1; min-width: 280px; max-width: 450px;">
+                    <div class="form-group" style="margin: 0;">
+                        <div class="search-wrapper" style="position: relative;">
+                            <i class="fas fa-search" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #667eea; z-index: 1; font-size: 16px;"></i>
+                            <input 
+                                type="text" 
+                                v-model="searchQuery"
+                                placeholder="Buscar por RFID, nombre, raza..." 
+                                class="form-control search-input-enhanced"
+                                style="padding-left: 44px; padding-right: 40px; height: 48px; border-radius: 12px; border: 2px solid var(--color-border); font-size: 14px; transition: all 0.3s ease;"
+                            >
+                            <button 
+                                v-if="searchQuery" 
+                                @click="searchQuery = ''"
+                                class="search-clear-btn"
+                                style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 28px; height: 28px; border-radius: 50%; border: none; background: var(--color-bg-tertiary); color: var(--color-text-tertiary); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; z-index: 1;"
+                                title="Limpiar búsqueda"
+                            >
+                                <i class="fas fa-times" style="font-size: 12px;"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                    <!-- Status Filter -->
+                    <select v-model="filterStatus" class="form-select" style="min-width: 160px; height: 48px;">
+                        <option value="">Todos los estados</option>
+                        <option value="success">Saludables</option>
+                        <option value="warning">En Observación</option>
+                        <option value="danger">Críticos</option>
+                    </select>
+
+                    <!-- Breed Filter -->
+                    <select v-model="filterBreed" class="form-select" style="min-width: 160px; height: 48px;">
+                        <option value="">Todas las razas</option>
+                        <option value="Holstein">Holstein</option>
+                        <option value="Brahman">Brahman</option>
+                        <option value="Angus">Angus</option>
+                        <option value="Simmental">Simmental</option>
+                        <option value="Charolais">Charolais</option>
+                        <option value="Hereford">Hereford</option>
+                    </select>
+
+                    <!-- Refresh Button -->
+                    <button @click="loadAnimals()" class="btn btn-outline" :disabled="loading" style="white-space: nowrap; height: 48px;">
+                        <i class="fas fa-sync-alt" :class="{ 'fa-spin': loading }" style="margin-right: 8px;"></i>
+                        Actualizar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Animals Table -->
+    <div class="card">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 class="card-title" style="display: flex; align-items: center; gap: 0.5rem; margin: 0;">
+                <i class="fas fa-list"></i>
+                Lista de Animales
+            </h3>
+            <span class="badge badge-primary">[[ filteredAnimals.length ]] animales</span>
+        </div>
+        <div class="card-body" style="padding: 0;">
+            <!-- Loading State -->
+            <div v-if="loading" style="padding: 3rem; text-align: center;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 48px; color: var(--color-primary); margin-bottom: 1rem;"></i>
+                <p style="color: var(--color-text-secondary);">Cargando animales...</p>
+            </div>
+
+            <!-- Table -->
+            <div v-else-if="!isEmpty" class="table-responsive">
+                <table class="table" style="margin: 0;">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">ID</th>
+                            <th>RFID Tag</th>
+                            <th>Nombre</th>
+                            <th>Raza</th>
+                            <th>Edad</th>
+                            <th>Estado</th>
+                            <th>Ubicación</th>
+                            <th style="width: 150px; text-align: center;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="animal in paginatedAnimals" :key="animal.id">
+                            <td style="font-weight: 600; color: var(--color-text-secondary);">#[[ animal.id ]]</td>
+                            <td>
+                                <div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: var(--color-bg-tertiary); border-radius: 6px; font-family: 'Courier New', monospace; font-size: 13px;">
+                                    <i class="fas fa-wifi" style="font-size: 10px;"></i>
+                                    <span>[[ animal.rfid ]]</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div style="width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; color: white;" :style="{ background: animal.avatarColor }">
+                                        [[ animal.name.charAt(0) ]]
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 600; color: var(--color-text-primary);">[[ animal.name ]]</div>
+                                        <div style="font-size: 12px; color: var(--color-text-tertiary);">Código: [[ animal.code ]]</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge badge-outline">[[ animal.breed ]]</span>
+                            </td>
+                            <td>[[ animal.age_display ]]</td>
+                            <td>
+                                <span class="badge" :class="'badge-' + animal.status.class">
+                                    [[ animal.status.name ]]
+                                </span>
+                            </td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-map-marker-alt" style="color: var(--color-text-tertiary); font-size: 12px;"></i>
+                                    <span>[[ animal.location ]]</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="display: flex; gap: 6px; justify-content: center;">
+                                    <button @click="viewAnimal(animal)" class="btn-icon-action btn-icon-primary" title="Ver detalles">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button @click="editAnimal(animal)" class="btn-icon-action btn-icon-warning" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button @click="deleteAnimal(animal)" class="btn-icon-action btn-icon-danger" title="Eliminar">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Empty State -->
+            <div v-else style="padding: 4rem 2rem; text-align: center;">
+                <div style="display: inline-flex; padding: 1.5rem; background: var(--color-bg-tertiary); border-radius: 50%; margin-bottom: 1rem;">
+                    <i class="fas fa-inbox" style="font-size: 48px; color: var(--color-text-tertiary);"></i>
+                </div>
+                <h3 style="font-size: 18px; font-weight: 600; color: var(--color-text-primary); margin-bottom: 0.5rem;">
+                    No se encontraron animales
+                </h3>
+                <p style="color: var(--color-text-secondary); font-size: 14px; margin-bottom: 1.5rem;">
+                    [[ searchQuery || filterStatus || filterBreed 
+                        ? 'Intenta ajustar los filtros de búsqueda' 
+                        : 'Comienza agregando tu primer animal al sistema' ]]
+                </p>
+                <button @click="openAddModal()" class="btn btn-primary">
+                    <i class="fas fa-plus" style="margin-right: 8px;"></i>
+                    Agregar Animal
+                </button>
+            </div>
+        </div>        <!-- Pagination -->
+        <div v-if="!isEmpty && !loading" class="card-footer" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; flex-wrap: wrap; gap: 1rem;">
+            <div style="color: var(--color-text-secondary); font-size: 14px;">
+                Mostrando 
+                <strong>[[ (currentPage - 1) * itemsPerPage + 1 ]]</strong>
+                - 
+                <strong>[[ Math.min(currentPage * itemsPerPage, filteredAnimals.length) ]]</strong>
+                de 
+                <strong>[[ filteredAnimals.length ]]</strong> 
+                animales
+            </div>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <button @click="changePage(currentPage - 1)" class="btn btn-sm btn-outline" :disabled="currentPage === 1">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button 
+                    v-for="page in displayPages" 
+                    :key="page"
+                    @click="changePage(page)"
+                    class="btn btn-sm"
+                    :class="page === currentPage ? 'btn-primary' : 'btn-outline'"
+                >
+                    [[ page ]]
+                </button>
+                <button @click="changePage(currentPage + 1)" class="btn btn-sm btn-outline" :disabled="currentPage === totalPages">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Animal Modal -->
+    <transition name="modal">
+        <div v-if="showModal" class="modal-overlay" @click.self="closeModal()">
+            <div class="modal modal-lg" style="max-width: 800px; animation: scaleIn 0.3s ease-out;">
+                <div class="modal-header">
+                    <h2 class="modal-title">
+                        <i :class="modalMode === 'add' ? 'fas fa-plus-circle' : 'fas fa-edit'" style="margin-right: 8px;"></i>
+                        [[ modalMode === 'add' ? 'Agregar Nuevo Animal' : 'Editar Animal' ]]
+                    </h2>
+                    <button @click="closeModal()" class="btn-close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <form @submit.prevent="saveAnimal()">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+                            <!-- RFID Tag -->
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-wifi" style="margin-right: 6px; color: var(--color-text-tertiary);"></i>
+                                    RFID Tag *
+                                </label>
+                                <input 
+                                    type="text" 
+                                    v-model="formData.rfid"
+                                    class="form-control"
+                                    placeholder="RF-00000000"
+                                    required
+                                >
+                            </div>
+
+                            <!-- Animal Name -->
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-tag" style="margin-right: 6px; color: var(--color-text-tertiary);"></i>
+                                    Nombre del Animal *
+                                </label>
+                                <input 
+                                    type="text" 
+                                    v-model="formData.name"
+                                    class="form-control"
+                                    placeholder="Ej: Mariposa, Estrella"
+                                    required
+                                >
+                            </div>
+
+                            <!-- Breed -->
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-paw" style="margin-right: 6px; color: var(--color-text-tertiary);"></i>
+                                    Raza *
+                                </label>
+                                <select v-model="formData.breed" class="form-select" required>
+                                    <option value="">Seleccionar raza</option>
+                                    <option value="Holstein">Holstein</option>
+                                    <option value="Brahman">Brahman</option>
+                                    <option value="Angus">Angus</option>
+                                    <option value="Simmental">Simmental</option>
+                                    <option value="Charolais">Charolais</option>
+                                    <option value="Hereford">Hereford</option>
+                                </select>
+                            </div>
+
+                            <!-- Age -->
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-calendar" style="margin-right: 6px; color: var(--color-text-tertiary);"></i>
+                                    Edad (meses) *
+                                </label>
+                                <input 
+                                    type="number" 
+                                    v-model="formData.age_months"
+                                    class="form-control"
+                                    placeholder="0"
+                                    min="0"
+                                    max="240"
+                                    required
+                                >
+                            </div>
+
+                            <!-- Health Status -->
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-heart-pulse" style="margin-right: 6px; color: var(--color-text-tertiary);"></i>
+                                    Estado de Salud *
+                                </label>
+                                <select v-model="formData.status" class="form-select" required>
+                                    <option value="">Seleccionar estado</option>
+                                    <option value="success">Saludable</option>
+                                    <option value="warning">En Observación</option>
+                                    <option value="danger">Crítico</option>
+                                </select>
+                            </div>
+
+                            <!-- Location -->
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-map-marker-alt" style="margin-right: 6px; color: var(--color-text-tertiary);"></i>
+                                    Ubicación *
+                                </label>
+                                <input 
+                                    type="text" 
+                                    v-model="formData.location"
+                                    class="form-control"
+                                    placeholder="Ej: Potrero A, Zona Norte"
+                                    required
+                                >
+                            </div>
+
+                            <!-- Weight -->
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-weight" style="margin-right: 6px; color: var(--color-text-tertiary);"></i>
+                                    Peso (kg)
+                                </label>
+                                <input 
+                                    type="number" 
+                                    v-model="formData.weight"
+                                    class="form-control"
+                                    placeholder="0"
+                                    min="0"
+                                    step="0.1"
+                                >
+                            </div>
+
+                            <!-- Observations -->
+                            <div class="form-group" style="grid-column: 1 / -1;">
+                                <label class="form-label">
+                                    <i class="fas fa-file-alt" style="margin-right: 6px; color: var(--color-text-tertiary);"></i>
+                                    Observaciones
+                                </label>
+                                <textarea 
+                                    v-model="formData.observations"
+                                    class="form-control"
+                                    rows="3"
+                                    placeholder="Notas adicionales sobre el animal..."
+                                ></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Modal Footer -->
+                        <div class="modal-footer" style="margin-top: 2rem;">
+                            <button type="button" @click="closeModal()" class="btn btn-outline">
+                                <i class="fas fa-times" style="margin-right: 8px;"></i>
+                                Cancelar
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i :class="modalMode === 'add' ? 'fas fa-check' : 'fas fa-save'" style="margin-right: 8px;"></i>
+                                [[ modalMode === 'add' ? 'Agregar Animal' : 'Guardar Cambios' ]]
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </transition>
+</div>
+
+<!-- Additional Styles -->
+<style>
+    /* Vue.js v-cloak directive */
+    [v-cloak] {
+        display: none !important;
+    }
+
+    /* Enhanced Search Input Styles */
+    .search-input-enhanced:focus {
+        border-color: var(--color-primary) !important;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+        outline: none;
+    }
+
+    .search-clear-btn:hover {
+        background: var(--color-error) !important;
+        color: white !important;
+    }
+
+    /* Action Buttons */
+    .btn-icon-action {
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+
+    .btn-icon-action:hover {
+        transform: scale(1.1);
+    }
+
+    .btn-icon-primary {
+        color: var(--color-primary);
+    }
+
+    .btn-icon-primary:hover {
+        background: rgba(59, 130, 246, 0.1);
+    }
+
+    .btn-icon-warning {
+        color: var(--color-warning);
+    }
+
+    .btn-icon-warning:hover {
+        background: rgba(245, 158, 11, 0.1);
+    }
+
+    .btn-icon-danger {
+        color: var(--color-error);
+    }
+
+    .btn-icon-danger:hover {
+        background: rgba(239, 68, 68, 0.1);
+    }
+
+    /* === ENHANCED TABLE STYLES === */
+    .table-responsive {
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .table {
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .table thead {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .table thead th {
+        color: white !important;
+        font-weight: 600;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 16px 12px !important;
+        border: none !important;
+        white-space: nowrap;
+    }
+
+    .table tbody tr {
+        background: white;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .table tbody td {
+        padding: 16px 12px !important;
+        vertical-align: middle;
+        border: none !important;
+    }
+
+    .table tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    /* Badge Enhancements */
+    .badge {
+        font-weight: 600;
+        font-size: 12px;
+        padding: 6px 12px;
+        border-radius: 8px;
+        letter-spacing: 0.3px;
+        transition: all 0.2s ease;
+    }
+
+    .badge:hover {
+        transform: scale(1.05);
+    }
+
+    .badge-primary {
+        background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+        color: white;
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+    }
+
+    .badge-success {
+        background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        color: white;
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+    }
+
+    .badge-warning {
+        background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+        color: white;
+        box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+    }
+
+    .badge-danger {
+        background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+        color: white;
+        box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+    }
+
+    .badge-outline {
+        background: white;
+        border: 2px solid #e2e8f0;
+        color: #64748b;
+        font-weight: 600;
+    }
+
+    /* Input Focus Effects */
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #667eea !important;
+        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1) !important;
+        outline: none;
+        transform: translateY(-1px);
+    }
+
+    /* Loading Spinner */
+    .fa-spinner {
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    /* Pagination Enhanced */
+    .card-footer {
+        background: linear-gradient(to bottom, transparent, rgba(102, 126, 234, 0.02));
+        border-top: 1px solid #f1f5f9;
+    }
+
+    /* Modal Animations */
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Vue.js Animals Manager Component -->
+<script>
+const { createApp } = Vue;
+
+createApp({
+    delimiters: ['[[', ']]'],
+    
+    data() {
+        return {
+            loading: false,
+            animals: {{ animals_list | tojson }},
+            filteredAnimals: [],
+            showModal: false,
+            modalMode: 'add',
+            currentAnimal: null,
+            formData: this.getEmptyForm(),
+            searchQuery: '',
+            filterStatus: '',
+            filterBreed: '',
+            currentPage: 1,
+            itemsPerPage: 10,
+            totalPages: 1
+        };
+    },
+    
+    computed: {
+        totalAnimals() {
+            return this.animals.length;
+        },
+        
+        healthyCount() {
+            return this.animals.filter(a => a.status.class === 'success').length;
+        },
+        
+        warningCount() {
+            return this.animals.filter(a => a.status.class === 'warning').length;
+        },
+        
+        criticalCount() {
+            return this.animals.filter(a => a.status.class === 'danger').length;
+        },
+        
+        healthyPercentage() {
+            if (this.totalAnimals === 0) return 0;
+            return Math.round((this.healthyCount / this.totalAnimals) * 100);
+        },
+        
+        paginatedAnimals() {
+            const start = (this.currentPage - 1) * this.itemsPerPage;
+            const end = start + this.itemsPerPage;
+            return this.filteredAnimals.slice(start, end);
+        },
+        
+        isEmpty() {
+            return !this.loading && this.filteredAnimals.length === 0;
+        },
+        
+        displayPages() {
+            const pages = [];
+            const maxVisible = 5;
+            let start = Math.max(1, this.currentPage - Math.floor(maxVisible / 2));
+            let end = Math.min(this.totalPages, start + maxVisible - 1);
+            
+            if (end - start < maxVisible - 1) {
+                start = Math.max(1, end - maxVisible + 1);
+            }
+            
+            for (let i = start; i <= end; i++) {
+                pages.push(i);
+            }
+            return pages;
+        }
+    },
+    
+    watch: {
+        searchQuery() {
+            this.filterAnimals();
+        },
+        
+        filterStatus() {
+            this.filterAnimals();
+        },
+        
+        filterBreed() {
+            this.filterAnimals();
+        }
+    },
+    
+    methods: {
+        loadAnimals() {
+            this.loading = true;
+            setTimeout(() => {
+                this.filterAnimals();
+                this.loading = false;
+            }, 500);
+        },
+        
+        filterAnimals() {
+            let filtered = [...this.animals];
+            
+            if (this.searchQuery.trim()) {
+                const query = this.searchQuery.toLowerCase();
+                filtered = filtered.filter(animal =>
+                    animal.rfid?.toLowerCase().includes(query) ||
+                    animal.name?.toLowerCase().includes(query) ||
+                    animal.breed?.toLowerCase().includes(query) ||
+                    animal.location?.toLowerCase().includes(query) ||
+                    animal.code?.toLowerCase().includes(query)
+                );
+            }
+            
+            if (this.filterStatus) {
+                filtered = filtered.filter(animal => animal.status.class === this.filterStatus);
+            }
+            
+            if (this.filterBreed) {
+                filtered = filtered.filter(animal => animal.breed === this.filterBreed);
+            }
+            
+            this.filteredAnimals = filtered;
+            this.currentPage = 1;
+            this.updatePagination();
+        },        updatePagination() {
+            this.totalPages = Math.ceil(this.filteredAnimals.length / this.itemsPerPage);
+        },
+        
+        changePage(page) {
+            if (page >= 1 && page <= this.totalPages) {
+                this.currentPage = page;
+                // Scroll eliminado - mantiene la posición actual del usuario
+            }
+        },
+        
+        openAddModal() {
+            this.modalMode = 'add';
+            this.formData = this.getEmptyForm();
+            this.showModal = true;
+        },
+        
+        viewAnimal(animal) {
+            Swal.fire({
+                title: animal.name,
+                html: `
+                    <div style="text-align: left;">
+                        <p><strong>RFID:</strong> ${animal.rfid}</p>
+                        <p><strong>Código:</strong> ${animal.code}</p>
+                        <p><strong>Raza:</strong> ${animal.breed}</p>
+                        <p><strong>Edad:</strong> ${animal.age_display}</p>
+                        <p><strong>Peso:</strong> ${animal.weight} kg</p>
+                        <p><strong>Estado:</strong> ${animal.status.name}</p>
+                        <p><strong>Ubicación:</strong> ${animal.location}</p>
+                        <p><strong>Temperatura:</strong> ${animal.temperature}°C</p>
+                    </div>
+                `,
+                icon: 'info',
+                confirmButtonText: 'Cerrar'
+            });
+        },
+        
+        editAnimal(animal) {
+            this.modalMode = 'edit';
+            this.currentAnimal = animal;
+            this.formData = {
+                rfid: animal.rfid,
+                name: animal.name,
+                breed: animal.breed,
+                age_months: animal.age_months,
+                status: animal.status.class,
+                location: animal.location,
+                weight: animal.weight || '',
+                observations: animal.observations || ''
+            };
+            this.showModal = true;
+        },
+        
+        async deleteAnimal(animal) {
+            const result = await Swal.fire({
+                title: '¿Estás seguro?',
+                html: `¿Deseas eliminar el animal <strong>${animal.name}</strong>?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            });
+            
+            if (result.isConfirmed) {
+                this.animals = this.animals.filter(a => a.id !== animal.id);
+                this.filterAnimals();
+                
+                Swal.fire({
+                    title: '¡Eliminado!',
+                    text: 'El animal ha sido eliminado exitosamente.',
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            }
+        },
+        
+        async saveAnimal() {
+            if (!this.validateForm()) return;
+            
+            try {
+                if (this.modalMode === 'add') {
+                    const newAnimal = {
+                        id: Math.max(...this.animals.map(a => a.id)) + 1,
+                        code: `AG${String(this.animals.length + 1).padStart(4, '0')}`,
+                        rfid: this.formData.rfid,
+                        name: this.formData.name,
+                        breed: this.formData.breed,
+                        age_months: parseInt(this.formData.age_months),
+                        age: Math.floor(this.formData.age_months / 12),
+                        age_display: this.formData.age_months >= 12 
+                            ? `${Math.floor(this.formData.age_months / 12)}a ${this.formData.age_months % 12}m`
+                            : `${this.formData.age_months}m`,
+                        status: {
+                            class: this.formData.status,
+                            name: this.getStatusLabel(this.formData.status)
+                        },
+                        location: this.formData.location,
+                        weight: parseInt(this.formData.weight) || 0,
+                        observations: this.formData.observations,
+                        temperature: 38.5,
+                        health_score: this.formData.status === 'success' ? 95 : 70,
+                        avatarColor: this.getRandomColor(),
+                        last_scan_display: 'Hace unos momentos'
+                    };
+                    
+                    this.animals.unshift(newAnimal);
+                    
+                } else {
+                    const index = this.animals.findIndex(a => a.id === this.currentAnimal.id);
+                    if (index !== -1) {
+                        this.animals[index] = {
+                            ...this.animals[index],
+                            rfid: this.formData.rfid,
+                            name: this.formData.name,
+                            breed: this.formData.breed,
+                            age_months: parseInt(this.formData.age_months),
+                            age: Math.floor(this.formData.age_months / 12),
+                            age_display: this.formData.age_months >= 12 
+                                ? `${Math.floor(this.formData.age_months / 12)}a ${this.formData.age_months % 12}m`
+                                : `${this.formData.age_months}m`,
+                            status: {
+                                class: this.formData.status,
+                                name: this.getStatusLabel(this.formData.status)
+                            },
+                            location: this.formData.location,
+                            weight: parseInt(this.formData.weight) || 0,
+                            observations: this.formData.observations
+                        };
+                    }
+                }
+                
+                this.filterAnimals();
+                this.closeModal();
+                
+                Swal.fire({
+                    title: '¡Guardado!',
+                    text: `Animal ${this.modalMode === 'add' ? 'agregado' : 'actualizado'} exitosamente.`,
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                
+            } catch (error) {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Error al guardar el animal.',
+                    icon: 'error'
+                });
+            }
+        },
+        
+        validateForm() {
+            if (!this.formData.rfid || !this.formData.name || !this.formData.breed) {
+                Swal.fire({
+                    title: 'Campos requeridos',
+                    text: 'Por favor completa todos los campos obligatorios.',
+                    icon: 'warning'
+                });
+                return false;
+            }
+            return true;
+        },
+        
+        closeModal() {
+            this.showModal = false;
+            this.formData = this.getEmptyForm();
+            this.currentAnimal = null;
+        },
+        
+        getEmptyForm() {
+            return {
+                rfid: '',
+                name: '',
+                breed: '',
+                age_months: '',
+                status: 'success',
+                location: '',
+                weight: '',
+                observations: ''
+            };
+        },
+        
+        getStatusLabel(statusClass) {
+            const labels = {
+                'success': 'Saludable',
+                'warning': 'En Observación',
+                'danger': 'Crítico'
+            };
+            return labels[statusClass] || 'Desconocido';
+        },
+        
+        getRandomColor() {
+            const colors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6', '#F97316'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+    },
+    
+    mounted() {
+        this.filterAnimals();
+    }
+}).mount('#animalsApp');
+</script>
+{% endblock %}

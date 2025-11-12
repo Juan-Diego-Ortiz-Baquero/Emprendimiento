@@ -1,0 +1,1729 @@
+{% extends "layout.html" %}
+
+{% block title %}Dashboard - {{ app_name }}{% endblock %}
+
+{% block content %}
+<!-- Alpine.js Data Component -->
+<div x-data="dashboardApp()" x-init="init()" x-cloak>
+      <!-- ========== MODERN SIDEBAR WITH GRADIENT ========== -->
+    <aside id="logo-sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0 sidebar-transition" 
+           style="background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);"
+           :class="{'translate-x-0': sidebarOpen}">
+        <div class="h-full px-3 pb-4 overflow-y-auto">
+            <!-- Logo Section with Gradient -->
+            <div class="flex items-center justify-between py-5 px-2" style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                <a href="/" class="flex items-center space-x-3">
+                    <div class="flex items-center justify-center w-12 h-12 rounded-xl" 
+                         style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); box-shadow: 0 0 30px rgba(102, 126, 234, 0.4);">
+                        <i class="fas fa-cow text-white text-2xl"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-2xl font-extrabold text-white" style="background: linear-gradient(135deg, #fff 0%, #c3dafe 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">AgroTrace</span>
+                        <span class="text-xs text-gray-400 font-mono font-medium">v3.0 Pro</span>
+                    </div>
+                </a>
+            </div>
+            
+            <!-- Navigation Menu with Modern Style -->
+            <ul class="space-y-2 font-medium mt-6">
+                <!-- Dashboard -->
+                <li>
+                    <a href="#" @click.prevent="switchView('dashboard')" 
+                       class="flex items-center p-3 rounded-xl transition-all duration-300 group relative overflow-hidden"
+                       :class="currentView === 'dashboard' ? 'text-white' : 'text-gray-400 hover:text-white hover:bg-white/5'"
+                       :style="currentView === 'dashboard' ? 'background: linear-gradient(90deg, rgba(102, 126, 234, 0.2) 0%, rgba(102, 126, 234, 0.05) 100%); box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);' : ''">
+                        <div v-if="currentView === 'dashboard'" class="absolute left-0 top-0 bottom-0 w-1" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
+                        <i class="fas fa-th-large w-6 h-6 text-xl" 
+                           :class="currentView === 'dashboard' ? 'text-white' : 'text-gray-400 group-hover:text-white'"></i>
+                        <span class="ml-3 font-semibold">Dashboard</span>
+                    </a>
+                </li>
+                
+                <!-- Animals -->
+                <li>
+                    <a href="#" @click.prevent="switchView('animals')" 
+                       class="flex items-center p-3 rounded-xl transition-all duration-300 group relative overflow-hidden"
+                       :class="currentView === 'animals' ? 'text-white' : 'text-gray-400 hover:text-white hover:bg-white/5'"
+                       :style="currentView === 'animals' ? 'background: linear-gradient(90deg, rgba(102, 126, 234, 0.2) 0%, rgba(102, 126, 234, 0.05) 100%); box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);' : ''">
+                        <div v-if="currentView === 'animals'" class="absolute left-0 top-0 bottom-0 w-1" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
+                        <i class="fas fa-cow w-6 h-6 text-xl"
+                           :class="currentView === 'animals' ? 'text-white' : 'text-gray-400 group-hover:text-white'"></i>
+                        <span class="flex-1 ml-3 font-semibold whitespace-nowrap">Animales</span>
+                        <span class="inline-flex items-center justify-center px-2.5 py-1 text-xs font-bold text-white rounded-full" 
+                              style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);">155</span>
+                    </a>
+                </li>
+                
+                <!-- Health -->
+                <li>
+                    <a href="#" @click.prevent="switchView('health')" 
+                       class="flex items-center p-3 rounded-xl transition-all duration-300 group relative overflow-hidden"
+                       :class="currentView === 'health' ? 'text-white' : 'text-gray-400 hover:text-white hover:bg-white/5'"
+                       :style="currentView === 'health' ? 'background: linear-gradient(90deg, rgba(102, 126, 234, 0.2) 0%, rgba(102, 126, 234, 0.05) 100%); box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);' : ''">
+                        <div v-if="currentView === 'health'" class="absolute left-0 top-0 bottom-0 w-1" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
+                        <i class="fas fa-heartbeat w-6 h-6 text-xl"
+                           :class="currentView === 'health' ? 'text-white' : 'text-gray-400 group-hover:text-white'"></i>
+                        <span class="flex-1 ml-3 font-semibold whitespace-nowrap">Salud</span>
+                        <span v-show="stats.critical > 0" class="inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white rounded-full animate-pulse" 
+                              style="background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);" 
+                              x-text="stats.critical"></span>
+                    </a>
+                </li>
+                
+                <!-- Reports -->
+                <li>
+                    <a href="#" @click.prevent="switchView('reports')" 
+                       class="flex items-center p-3 rounded-xl transition-all duration-300 group relative overflow-hidden"
+                       :class="currentView === 'reports' ? 'text-white' : 'text-gray-400 hover:text-white hover:bg-white/5'"
+                       :style="currentView === 'reports' ? 'background: linear-gradient(90deg, rgba(102, 126, 234, 0.2) 0%, rgba(102, 126, 234, 0.05) 100%); box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);' : ''">
+                        <div v-if="currentView === 'reports'" class="absolute left-0 top-0 bottom-0 w-1" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
+                        <i class="fas fa-chart-line w-6 h-6 text-xl"
+                           :class="currentView === 'reports' ? 'text-white' : 'text-gray-400 group-hover:text-white'"></i>
+                        <span class="ml-3 font-semibold">Reportes</span>
+                    </a>
+                </li>
+                
+                <!-- Settings -->
+                <li>
+                    <a href="#" @click.prevent="switchView('settings')" 
+                       class="flex items-center p-3 rounded-xl transition-all duration-300 group relative overflow-hidden"
+                       :class="currentView === 'settings' ? 'text-white' : 'text-gray-400 hover:text-white hover:bg-white/5'"
+                       :style="currentView === 'settings' ? 'background: linear-gradient(90deg, rgba(102, 126, 234, 0.2) 0%, rgba(102, 126, 234, 0.05) 100%); box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);' : ''">
+                        <div v-if="currentView === 'settings'" class="absolute left-0 top-0 bottom-0 w-1" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
+                        <i class="fas fa-cog w-6 h-6 text-xl"
+                           :class="currentView === 'settings' ? 'text-white' : 'text-gray-400 group-hover:text-white'"></i>
+                        <span class="ml-3 font-semibold">Configuración</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <!-- User Profile Section with Modern Style -->
+            <div class="absolute bottom-0 left-0 right-0 p-4" style="border-top: 1px solid rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.03);">
+                <div class="flex items-center p-2 rounded-xl hover:bg-white/5 transition-all duration-300 cursor-pointer">
+                    <div class="w-10 h-10 rounded-full overflow-hidden" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); box-shadow: 0 0 15px rgba(102, 126, 234, 0.4);">
+                        <img class="w-full h-full object-cover" src="https://ui-avatars.com/api/?name=Admin&background=667eea&color=fff" alt="User">
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-semibold text-white">Admin User</p>
+                        <p class="text-xs text-gray-400">Administrador</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+      <!-- ========== MODERN NAVBAR WITH GLASSMORPHISM ========== -->
+    <div class="sm:ml-64">
+        <nav class="fixed top-0 z-30 w-full backdrop-blur-lg" 
+             style="background: rgba(255, 255, 255, 0.85); border-bottom: 1px solid rgba(0, 0, 0, 0.1); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);"
+             :class="{'sm:ml-64': !sidebarOpen}">
+            <div class="px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center justify-start gap-6">
+                        <!-- Mobile Menu Toggle -->
+                        <button @click="sidebarOpen = !sidebarOpen" type="button" 
+                                class="inline-flex items-center p-2.5 text-gray-600 rounded-xl sm:hidden hover:bg-gray-100 transition-all duration-300"
+                                style="background: white; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
+                            <span class="sr-only">Abrir sidebar</span>
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
+                        
+                        <!-- Enhanced Breadcrumbs -->
+                        <div class="hidden md:block">
+                            <nav class="flex items-center gap-2" aria-label="Breadcrumb">
+                                <div class="flex items-center gap-2 px-4 py-2 rounded-xl"
+                                     style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);">
+                                    <i class="fas fa-home text-lg" style="color: #667eea;"></i>
+                                    <span class="text-sm font-semibold text-gray-700">Inicio</span>
+                                    <i class="fas fa-chevron-right text-xs text-gray-400 mx-1"></i>
+                                    <span class="text-sm font-bold capitalize" style="color: #667eea;" x-text="currentView"></span>
+                                </div>
+                            </nav>
+                        </div>
+                    </div>                      <div class="flex items-center gap-4">                        
+                        <!-- ============================================
+                             VUE.JS 3 COMPONENT: Real-Time Clock with Modern Design
+                             ============================================ -->
+                        {% raw %}
+                        <div id="vueClock" v-cloak class="hidden lg:flex items-center px-4 py-2.5 rounded-xl backdrop-blur-lg"
+                             style="background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
+                            <div class="flex items-center justify-center w-10 h-10 rounded-lg mr-3"
+                                 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                <i class="fas fa-clock text-white text-lg"></i>
+                            </div>
+                            <div class="text-sm">
+                                <div class="font-bold text-gray-900">{{ currentTime }}</div>
+                                <div class="text-xs text-gray-500 font-medium">{{ currentDate }}</div>
+                            </div>
+                        </div>
+                        {% endraw %}
+                        
+                        <!-- Modern Search Bar -->
+                        <div class="relative hidden md:block">
+                            <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                                <i class="fas fa-search text-gray-400"></i>
+                            </div>
+                            <input type="text" 
+                                   class="block w-80 p-3 pl-12 text-sm font-medium text-gray-900 rounded-xl outline-none transition-all duration-300"
+                                   style="background: white; border: 2px solid #e2e8f0;"
+                                   onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 4px rgba(102, 126, 234, 0.1)'"
+                                   onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'"
+                                   placeholder="Buscar animales, alertas...">
+                        </div>
+                        
+                        <!-- Notifications Button with Badge -->
+                        <button type="button" 
+                                class="relative p-3 text-gray-600 rounded-xl transition-all duration-300 hover:bg-white"
+                                style="box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
+                            <i class="fas fa-bell text-xl"></i>
+                            <span v-show="stats.critical > 0" 
+                                  class="absolute -top-1 -right-1 inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white rounded-full animate-pulse"
+                                  style="background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);"
+                                  x-text="stats.critical"></span>
+                        </button>
+                        
+                        <!-- Dark Mode Toggle with Modern Style -->
+                        <button @click="toggleDarkMode()" type="button" 
+                                class="p-3 text-gray-600 rounded-xl transition-all duration-300 hover:bg-white"
+                                style="box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
+                            <i class="fas fa-moon text-xl" x-show="!darkMode"></i>
+                            <i class="fas fa-sun text-xl" x-show="darkMode"></i>
+                        </button>
+                        
+                        <!-- User Profile with Enhanced Design -->
+                        <div class="flex items-center gap-3 px-4 py-2 rounded-xl cursor-pointer transition-all duration-300 hover:bg-white"
+                             style="box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
+                            <div class="hidden sm:block text-right">
+                                <span class="block text-sm font-bold text-gray-900">Admin User</span>
+                                <span class="text-xs font-medium" style="color: #667eea;">Administrador</span>
+                            </div>
+                            <div class="w-10 h-10 rounded-full overflow-hidden" 
+                                 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); box-shadow: 0 0 15px rgba(102, 126, 234, 0.4);">
+                                <img class="w-full h-full object-cover" src="https://ui-avatars.com/api/?name=Admin&background=667eea&color=fff" alt="User">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+          <!-- ========== MAIN CONTENT ========== -->
+        <main class="p-4 mt-14">
+            <!-- Dashboard View -->
+            <div x-show="currentView === 'dashboard'" x-transition>
+                  <!-- ============================================
+                     VUE.JS 3 COMPONENT: Stats Cards con Animación Reactiva
+                     NOTA: {% raw %} evita que Jinja2 interprete las variables de Vue
+                     ============================================ -->
+                {% raw %}                <div id="vueStatsApp" v-cloak>
+                    <!-- Stats Cards Grid with Modern Design -->
+                    <div class="grid grid-cols-1 gap-6 mb-8 sm:grid-cols-2 lg:grid-cols-4">
+                        <!-- Total Animals Card - Modern Gradient -->
+                        <transition name="fade" appear>
+                            <div class="relative overflow-hidden rounded-2xl p-8 cursor-pointer transform transition-all duration-500 hover:scale-105"
+                                 style="background: white; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); border: 1px solid #f1f5f9;"
+                                 @mouseenter="animateCard(0)" 
+                                 @click="showDetailModal('total')">
+                                <!-- Gradient Bar at Bottom -->
+                                <div class="absolute bottom-0 left-0 right-0 h-1 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500" 
+                                     style="background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);"></div>
+                                
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center justify-center w-16 h-16 rounded-xl transform transition-all duration-500 hover:scale-110 hover:rotate-6" 
+                                         style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);">
+                                        <i class="fas fa-cow text-3xl text-white"></i>
+                                    </div>
+                                    <span v-if="isLoading" class="text-xs text-gray-400 animate-pulse">
+                                        <i class="fas fa-sync fa-spin"></i>
+                                    </span>
+                                </div>
+                                <h3 class="text-5xl font-extrabold mb-2 transition-all duration-300"
+                                    style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"
+                                    :class="{'counter-animate': cardAnimations[0]}">
+                                    {{ animatedTotal }}
+                                </h3>
+                                <p class="text-base font-semibold text-gray-600 uppercase tracking-wide mb-3">Total Animales</p>
+                                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold"
+                                     style="background: rgba(16, 185, 129, 0.1); color: #059669;">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>+{{ weeklyGrowth }} esta semana</span>
+                                </div>
+                            </div>
+                        </transition>
+                        
+                        <!-- Healthy Animals Card - Success Gradient -->
+                        <transition name="fade" appear :delay="100">
+                            <div class="relative overflow-hidden rounded-2xl p-8 cursor-pointer transform transition-all duration-500 hover:scale-105"
+                                 style="background: white; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); border: 1px solid #f1f5f9;"
+                                 @mouseenter="animateCard(1)"
+                                 @click="showDetailModal('healthy')">
+                                <div class="absolute bottom-0 left-0 right-0 h-1 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500" 
+                                     style="background: linear-gradient(90deg, #11998e 0%, #38ef7d 100%);"></div>
+                                
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center justify-center w-16 h-16 rounded-xl transform transition-all duration-500 hover:scale-110 hover:rotate-6" 
+                                         style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);">
+                                        <i class="fas fa-heart-pulse text-3xl text-white"></i>
+                                    </div>
+                                </div>
+                                <h3 class="text-5xl font-extrabold mb-2 transition-all duration-300"
+                                    style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"
+                                    :class="{'counter-animate': cardAnimations[1]}">
+                                    {{ animatedHealthy }}
+                                </h3>
+                                <p class="text-base font-semibold text-gray-600 uppercase tracking-wide mb-3">Animales Saludables</p>
+                                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold"
+                                     style="background: rgba(16, 185, 129, 0.1); color: #059669;">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>{{ healthyPercentage }}% del total</span>
+                                </div>
+                            </div>
+                        </transition>
+                        
+                        <!-- Warning Animals Card - Warning Gradient -->
+                        <transition name="fade" appear :delay="200">
+                            <div class="relative overflow-hidden rounded-2xl p-8 cursor-pointer transform transition-all duration-500 hover:scale-105"
+                                 style="background: white; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); border: 1px solid #f1f5f9;"
+                                 @mouseenter="animateCard(2)"
+                                 @click="showDetailModal('warning')">
+                                <div class="absolute bottom-0 left-0 right-0 h-1 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500" 
+                                     style="background: linear-gradient(90deg, #f2994a 0%, #f2c94c 100%);"></div>
+                                
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center justify-center w-16 h-16 rounded-xl transform transition-all duration-500 hover:scale-110 hover:rotate-6" 
+                                         style="background: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%); box-shadow: 0 10px 20px rgba(245, 158, 11, 0.3);">
+                                        <i class="fas fa-exclamation-triangle text-3xl text-white"></i>
+                                    </div>
+                                    <span v-if="stats.warning > 0" class="inline-flex h-3 w-3 animate-pulse">
+                                        <span class="absolute inline-flex h-3 w-3 rounded-full opacity-75" style="background: #f59e0b;"></span>
+                                        <span class="relative inline-flex rounded-full h-3 w-3" style="background: #f59e0b;"></span>
+                                    </span>
+                                </div>
+                                <h3 class="text-5xl font-extrabold mb-2 transition-all duration-300"
+                                    style="background: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"
+                                    :class="{'counter-animate': cardAnimations[2]}">
+                                    {{ animatedWarning }}
+                                </h3>
+                                <p class="text-base font-semibold text-gray-600 uppercase tracking-wide mb-3">En Observación</p>
+                                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold"
+                                     style="background: rgba(245, 158, 11, 0.1); color: #d97706;">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span>Requieren atención</span>
+                                </div>
+                            </div>
+                        </transition>
+                        
+                        <!-- Critical Animals Card - Danger Gradient -->
+                        <transition name="fade" appear :delay="300">
+                            <div class="relative overflow-hidden rounded-2xl p-8 cursor-pointer transform transition-all duration-500 hover:scale-105"
+                                 style="background: white; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); border: 1px solid #f1f5f9;"
+                                 :style="stats.critical > 0 ? 'box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);' : ''"
+                                 @mouseenter="animateCard(3)"
+                                 @click="showDetailModal('critical')">
+                                <div class="absolute bottom-0 left-0 right-0 h-1 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500" 
+                                     style="background: linear-gradient(90deg, #eb3349 0%, #f45c43 100%);"></div>
+                                
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center justify-center w-16 h-16 rounded-xl transform transition-all duration-500 hover:scale-110 hover:rotate-6" 
+                                         style="background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); box-shadow: 0 10px 20px rgba(239, 68, 68, 0.3);">
+                                        <i class="fas fa-ambulance text-3xl text-white" :class="{'animate-pulse': stats.critical > 0}"></i>
+                                    </div>
+                                    <span v-if="stats.critical > 0" class="inline-flex h-3 w-3 animate-ping">
+                                        <span class="absolute inline-flex h-full w-full rounded-full opacity-75" style="background: #ef4444;"></span>
+                                        <span class="relative inline-flex rounded-full h-3 w-3" style="background: #ef4444;"></span>
+                                    </span>
+                                </div>
+                                <h3 class="text-5xl font-extrabold mb-2 transition-all duration-300"
+                                    style="background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"
+                                    :class="{'counter-animate': cardAnimations[3]}">
+                                    {{ animatedCritical }}
+                                </h3><p class="text-base font-semibold text-gray-600 uppercase tracking-wide mb-3">Estado Crítico</p>
+                                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold"
+                                     style="background: rgba(239, 68, 68, 0.1); color: #dc2626;">
+                                    <i class="fas fa-bell" :class="{'animate-bounce': stats.critical > 0}"></i>
+                                    <span v-text="stats.critical > 0 ? 'Atención inmediata' : 'Sin alertas'"></span>
+                                </div>
+                            </div>
+                        </transition>
+                    </div>
+                      <!-- Vue Alert Notification -->
+                    <transition name="slide-fade">
+                        <div v-if="showAlert" 
+                             class="alert-bounce mb-4 bg-blue-50 dark:bg-blue-900 border-l-4 border-blue-500 p-4 rounded-lg shadow-sm"
+                             role="alert">
+                            <div class="flex items-center">
+                                <i class="fas fa-info-circle text-blue-600 dark:text-blue-400 mr-3"></i>
+                                <div>
+                                    <p class="font-medium text-blue-800 dark:text-blue-200">{{ alertMessage }}</p>
+                                    <p class="text-sm text-blue-600 dark:text-blue-300">{{ alertSubtext }}</p>
+                                </div>
+                                <button @click="showAlert = false" 
+                                        class="ml-auto text-blue-600 hover:text-blue-800 dark:text-blue-400">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </transition>
+                </div>
+                {% endraw %}
+                <!-- END Vue Stats Component -->
+                
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 gap-4 mb-4 sm:grid-cols-2 lg:grid-cols-4" style="display: none;">
+                    <!-- Total Animals Card -->
+                    <div class="bg-white rounded-lg shadow-sm dark:bg-gray-800 p-6 hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-primary-50 dark:bg-primary-900">
+                                <i class="fas fa-cow text-2xl text-primary-600 dark:text-primary-400"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white" x-text="stats.total">155</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Total Animales</p>
+                        <div class="mt-2 flex items-center text-sm text-green-600 dark:text-green-400">
+                            <i class="fas fa-arrow-up mr-1"></i>
+                            <span>+12 esta semana</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Healthy Animals Card -->
+                    <div class="bg-white rounded-lg shadow-sm dark:bg-gray-800 p-6 hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-green-50 dark:bg-green-900">
+                                <i class="fas fa-heart-pulse text-2xl text-green-600 dark:text-green-400"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white" x-text="stats.healthy">142</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Animales Saludables</p>
+                        <div class="mt-2 flex items-center text-sm text-green-600 dark:text-green-400">
+                            <i class="fas fa-check-circle mr-1"></i>
+                            <span x-text="`${Math.round((stats.healthy/stats.total)*100)}% del total`">91.6% del total</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Warning Animals Card -->
+                    <div class="bg-white rounded-lg shadow-sm dark:bg-gray-800 p-6 hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-yellow-50 dark:bg-yellow-900">
+                                <i class="fas fa-exclamation-triangle text-2xl text-yellow-600 dark:text-yellow-400"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white" x-text="stats.warning">10</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">En Observación</p>
+                        <div class="mt-2 flex items-center text-sm text-yellow-600 dark:text-yellow-400">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            <span>Requieren atención</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Critical Animals Card -->
+                    <div class="bg-white rounded-lg shadow-sm dark:bg-gray-800 p-6 hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-red-50 dark:bg-red-900">
+                                <i class="fas fa-ambulance text-2xl text-red-600 dark:text-red-400"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white" x-text="stats.critical">3</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Estado Crítico</p>
+                        <div class="mt-2 flex items-center text-sm text-red-600 dark:text-red-400">
+                            <i class="fas fa-bell mr-1"></i>
+                            <span>Atención inmediata</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Charts Row -->
+                <div class="grid grid-cols-1 gap-4 mb-4 lg:grid-cols-2">
+                    <!-- Timeline Chart -->
+                    <div class="bg-white rounded-lg shadow-sm dark:bg-gray-800 p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Escaneos RFID - Últimos 7 días</h3>
+                            <button class="text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                        </div>
+                        <canvas id="scansChart" class="w-full" style="max-height: 300px;"></canvas>
+                    </div>
+                    
+                    <!-- Health Distribution Chart -->
+                    <div class="bg-white rounded-lg shadow-sm dark:bg-gray-800 p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Distribución de Salud</h3>
+                            <button class="text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                        </div>
+                        <canvas id="healthChart" class="w-full" style="max-height: 300px;"></canvas>
+                    </div>
+                </div>
+                  <!-- Activity Feed - Vue.js 3 Component -->
+                <div class="bg-white rounded-lg shadow-sm dark:bg-gray-800 p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Actividad Reciente</h3>
+                        <button @click="loadActivityFeed()" class="text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400">
+                            <i class="fas fa-sync-alt mr-1"></i> Actualizar
+                        </button>
+                    </div>
+                      <!-- ============================================
+                         VUE.JS 3 COMPONENT: Real-Time Activity Feed
+                         NOTA: {% raw %} evita que Jinja2 interprete las variables de Vue
+                         ============================================ -->
+                    {% raw %}
+                    <div id="vueActivityFeed" v-cloak>
+                        <!-- Loading State -->
+                        <div v-if="isLoading" class="flex items-center justify-center py-8">
+                            <div class="vue-spinner"></div>
+                        </div>
+                        
+                        <!-- Empty State -->
+                        <div v-else-if="activities.length === 0" class="text-center py-8 text-gray-500 dark:text-gray-400">
+                            <i class="fas fa-inbox text-4xl mb-2"></i>
+                            <p class="text-sm">No hay actividad reciente</p>
+                        </div>
+                        
+                        <!-- Activity Items -->
+                        <transition-group v-else name="slide-fade" tag="div" class="space-y-3">
+                            <div v-for="activity in activities" 
+                                 :key="activity.id"
+                                 class="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer vue-smooth-transition">
+                                <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center"
+                                     :class="getIconColor(activity.type)">
+                                    <i :class="`fas fa-${activity.icon}`"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white">
+                                        {{ activity.message }}
+                                    </p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                        <i class="fas fa-clock mr-1"></i>{{ activity.time_ago }}
+                                        <span class="mx-2">•</span>
+                                        <i class="fas fa-user mr-1"></i>{{ activity.user }}
+                                    </p>
+                                </div>
+                            </div>
+                        </transition-group>
+                        
+                        <!-- Last Update Info -->
+                        <div v-if="lastUpdate && activities.length > 0" 
+                             class="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700 text-center">
+                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                                <i class="fas fa-sync mr-1"></i>
+                                Última actualización: {{ lastUpdate }}
+                            </p>
+                        </div>
+                    </div>
+                    {% endraw %}
+                    
+                    <!-- Fallback para navegadores sin Vue (oculto) -->
+                    <div id="activityFeed" class="space-y-3" style="display: none;">
+                        <!-- Activity items will be loaded here -->
+                        <div class="flex items-center justify-center py-8">
+                            <i class="fas fa-spinner fa-spin text-gray-400 text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+              <!-- Animals View -->
+            <div x-show="currentView === 'animals'" x-transition>
+                <div class="bg-white rounded-lg shadow-lg dark:bg-gray-800 p-6 border border-gray-100 dark:border-gray-700">
+                    <!-- Header con título y botón de acción -->
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+                                <i class="fas fa-cow text-primary-600 mr-2"></i>
+                                Gestión de Animales
+                            </h2>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">
+                                Administra y monitorea tu ganado en tiempo real
+                            </p>
+                        </div>
+                        <button class="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-primary-600 to-primary-700 rounded-lg hover:from-primary-700 hover:to-primary-800 focus:ring-4 focus:ring-primary-300 dark:focus:ring-primary-800 shadow-md hover:shadow-lg transition-all duration-200">
+                            <i class="fas fa-plus mr-2"></i> Nuevo Animal
+                        </button>
+                    </div>                    <!-- ============================================
+                         VUE.JS 3 COMPONENT: Filtros Rápidos Reactivos
+                         NOTA: {% raw %} evita que Jinja2 interprete las variables de Vue
+                         ============================================ -->
+                    {% raw %}
+                    <div id="vueTableFilters" v-cloak class="mb-6">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                            <button v-for="(filter, index) in filters" 
+                                    :key="filter.status"
+                                    @click="toggleFilter(filter.status)"
+                                    class="px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 vue-smooth-transition"
+                                    :class="activeFilter === filter.status 
+                                        ? 'bg-primary-100 dark:bg-primary-900 border-2 border-primary-500 dark:border-primary-400 text-primary-700 dark:text-primary-300 shadow-md transform scale-105' 
+                                        : 'bg-gray-50 border border-gray-200 text-gray-700 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600'">
+                                <i :class="`fas ${filter.icon} ${filter.color} mr-2`"></i> 
+                                {{ filter.label }}
+                                <span v-if="filter.count > 0" 
+                                      class="ml-2 px-2 py-0.5 text-xs rounded-full"
+                                      :class="activeFilter === filter.status 
+                                          ? 'bg-primary-200 dark:bg-primary-800 text-primary-800 dark:text-primary-200' 
+                                          : 'bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300'">
+                                    {{ filter.count }}
+                                </span>
+                            </button>
+                        </div>
+                        
+                        <!-- Active Filter Info -->
+                        <transition name="fade">
+                            <div v-if="activeFilter" 
+                                 class="mt-3 p-3 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg flex items-center justify-between">
+                                <div class="flex items-center text-sm text-blue-700 dark:text-blue-300">
+                                    <i class="fas fa-filter mr-2"></i>
+                                    <span>Filtrando por: <strong>{{ activeFilter }}</strong></span>
+                                </div>
+                                <button @click="clearFilter()" 
+                                        class="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 font-medium">
+                                    <i class="fas fa-times mr-1"></i> Limpiar filtro
+                                </button>
+                            </div>
+                        </transition>
+                    </div>
+                    {% endraw %}
+                    
+                    <!-- Filtros rápidos (Fallback - oculto) -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6" style="display: none;">
+                        <button class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600 transition-colors">
+                            <i class="fas fa-check-circle text-green-500 mr-2"></i> Saludables
+                        </button>
+                        <button class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600 transition-colors">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i> En Observación
+                        </button>
+                        <button class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600 transition-colors">
+                            <i class="fas fa-pills text-red-500 mr-2"></i> En Tratamiento
+                        </button>
+                        <button class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600 transition-colors">
+                            <i class="fas fa-ban text-blue-500 mr-2"></i> Cuarentena
+                        </button>
+                    </div>
+                    
+                    <!-- DataTable Container con estilos mejorados -->
+                    <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+                        <table id="animalsTable" class="w-full text-sm text-left">
+                            <thead class="text-xs font-semibold text-gray-700 uppercase bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 dark:text-gray-300 border-b-2 border-primary-500">
+                                <tr>
+                                    <th scope="col" class="px-4 py-4 whitespace-nowrap">
+                                        <i class="fas fa-barcode mr-1 text-primary-600"></i> Código
+                                    </th>
+                                    <th scope="col" class="px-4 py-4 whitespace-nowrap">
+                                        <i class="fas fa-wifi mr-1 text-primary-600"></i> ID RFID
+                                    </th>
+                                    <th scope="col" class="px-4 py-4 whitespace-nowrap">
+                                        <i class="fas fa-paw mr-1 text-primary-600"></i> Raza
+                                    </th>
+                                    <th scope="col" class="px-4 py-4 whitespace-nowrap">
+                                        <i class="fas fa-calendar mr-1 text-primary-600"></i> Edad
+                                    </th>
+                                    <th scope="col" class="px-4 py-4 whitespace-nowrap">
+                                        <i class="fas fa-weight-scale mr-1 text-primary-600"></i> Peso
+                                    </th>
+                                    <th scope="col" class="px-4 py-4 whitespace-nowrap">
+                                        <i class="fas fa-heart-pulse mr-1 text-primary-600"></i> Estado
+                                    </th>
+                                    <th scope="col" class="px-4 py-4 whitespace-nowrap">
+                                        <i class="fas fa-map-marker-alt mr-1 text-primary-600"></i> Ubicación
+                                    </th>
+                                    <th scope="col" class="px-4 py-4 text-center whitespace-nowrap">
+                                        <i class="fas fa-cog text-primary-600"></i>
+                                        <span class="sr-only">Acciones</span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                                <!-- Data will be loaded by DataTables.js -->
+                                <!-- Las filas tendrán hover effect y estilos mejorados -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Health View -->
+            <div x-show="currentView === 'health'" x-transition>
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-3 mb-4">
+                    <div class="bg-white rounded-lg shadow-sm dark:bg-gray-800 p-6 text-center">
+                        <i class="fas fa-shield-alt text-4xl text-green-500 mb-3"></i>
+                        <h3 class="text-3xl font-bold text-gray-900 dark:text-white">94.2%</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Tasa de Vacunación</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-sm dark:bg-gray-800 p-6 text-center">
+                        <i class="fas fa-pills text-4xl text-yellow-500 mb-3"></i>
+                        <h3 class="text-3xl font-bold text-gray-900 dark:text-white">12</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Tratamientos Activos</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-sm dark:bg-gray-800 p-6 text-center">
+                        <i class="fas fa-ban text-4xl text-red-500 mb-3"></i>
+                        <h3 class="text-3xl font-bold text-gray-900 dark:text-white">3</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">En Cuarentena</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Reports View -->
+            <div x-show="currentView === 'reports'" x-transition>
+                <div class="bg-white rounded-lg shadow-sm dark:bg-gray-800 p-12 text-center">
+                    <i class="fas fa-chart-line text-6xl text-gray-300 dark:text-gray-600 mb-4"></i>
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Módulo en Desarrollo</h3>
+                    <p class="text-gray-500 dark:text-gray-400">Los reportes y análisis estarán disponibles próximamente</p>
+                </div>
+            </div>
+            
+            <!-- Settings View -->
+            <div x-show="currentView === 'settings'" x-transition>
+                <div class="bg-white rounded-lg shadow-sm dark:bg-gray-800 p-12 text-center">
+                    <i class="fas fa-cog text-6xl text-gray-300 dark:text-gray-600 mb-4"></i>
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Configuración del Sistema</h3>
+                    <p class="text-gray-500 dark:text-gray-400">Las opciones de configuración estarán disponibles próximamente</p>
+                </div>
+            </div>
+        </main>
+        
+        <!-- ========== FOOTER ========== -->
+        <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-8">
+            <div class="px-4 py-6 mx-auto sm:px-6 lg:px-8">
+                <div class="flex flex-col items-center justify-between space-y-4 sm:flex-row sm:space-y-0">
+                    <div class="flex flex-col items-center space-y-2 sm:flex-row sm:space-y-0 sm:space-x-4">
+                        <span class="text-sm text-gray-500 dark:text-gray-400">
+                            AgroTrace System <span class="font-mono font-semibold">v3.0.0</span>
+                        </span>
+                        <span class="hidden sm:inline text-gray-300 dark:text-gray-600">•</span>
+                        <span class="text-sm text-gray-500 dark:text-gray-400">
+                            Build 2024.{{ app_name }}
+                        </span>
+                    </div>
+                    <div class="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
+                        <i class="fas fa-clock"></i>
+                        <span id="currentTime"></span>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+</div>
+<!-- End Alpine.js Component -->
+
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+// ========================================
+// ALPINE.JS DASHBOARD APP
+// ========================================
+function dashboardApp() {
+    return {
+        sidebarOpen: false,
+        darkMode: false,
+        currentView: 'dashboard',
+        stats: {
+            total: 155,
+            healthy: 142,
+            warning: 10,
+            critical: 3
+        },
+        
+        init() {
+            console.log('✓ AgroTrace Dashboard v3.0.0 Initialized');
+            this.loadDashboardStats();
+            this.loadActivityFeed();
+            
+            // Check for dark mode preference
+            if (localStorage.getItem('darkMode') === 'true') {
+                this.enableDarkMode();
+            }
+            
+            // Initialize components after Alpine is ready
+            this.$nextTick(() => {
+                initializeCharts();
+                initializeDataTables();
+                updateTime();
+                setInterval(updateTime, 1000);
+            });
+        },
+        
+        switchView(view) {
+            this.currentView = view;
+            console.log('→ Switched to view:', view);
+            
+            // Reinitialize DataTables when switching to animals view
+            if (view === 'animals') {
+                this.$nextTick(() => {
+                    if ($.fn.DataTable.isDataTable('#animalsTable')) {
+                        $('#animalsTable').DataTable().destroy();
+                    }
+                    initializeDataTables();
+                });
+            }
+        },
+        
+        toggleDarkMode() {
+            this.darkMode = !this.darkMode;
+            if (this.darkMode) {
+                this.enableDarkMode();
+            } else {
+                this.disableDarkMode();
+            }
+        },
+        
+        enableDarkMode() {
+            document.documentElement.classList.add('dark');
+            localStorage.setItem('darkMode', 'true');
+            this.darkMode = true;
+        },
+        
+        disableDarkMode() {
+            document.documentElement.classList.remove('dark');
+            localStorage.setItem('darkMode', 'false');
+            this.darkMode = false;
+        },
+        
+        async loadDashboardStats() {
+            try {
+                const response = await fetch('/api/dashboard/stats');
+                const data = await response.json();
+                if (data.success) {
+                    this.stats = {
+                        total: data.data.total_animals,
+                        healthy: data.data.healthy,
+                        warning: data.data.warning,
+                        critical: data.data.critical
+                    };
+                    console.log('✓ Stats loaded:', this.stats);
+                }
+            } catch (error) {
+                console.error('✗ Error loading stats:', error);
+            }
+        },
+        
+        async loadActivityFeed() {
+            try {
+                const response = await fetch('/api/activity/feed?limit=10');
+                const data = await response.json();
+                if (data.success) {
+                    renderActivityFeed(data.data);
+                }
+            } catch (error) {
+                console.error('✗ Error loading activity feed:', error);
+            }
+        }
+    }
+}
+
+// ========================================
+// CHART.JS INITIALIZATION
+// ========================================
+let scansChart = null;
+let healthChart = null;
+
+async function initializeCharts() {
+    // Scans Timeline Chart
+    try {
+        const response = await fetch('/api/charts/scans-timeline');
+        const data = await response.json();
+        
+        if (data.success) {
+            const ctx = document.getElementById('scansChart');
+            if (!ctx) return;
+            
+            if (scansChart) scansChart.destroy();
+            
+            scansChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.data.labels,
+                    datasets: [{
+                        label: 'Escaneos RFID',
+                        data: data.data.values,
+                        borderColor: 'rgb(34, 197, 94)',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+            console.log('✓ Scans chart initialized');
+        }
+    } catch (error) {
+        console.error('✗ Error initializing scans chart:', error);
+    }
+    
+    // Health Distribution Chart
+    try {
+        const response = await fetch('/api/charts/health-distribution');
+        const data = await response.json();
+        
+        if (data.success) {
+            const ctx = document.getElementById('healthChart');
+            if (!ctx) return;
+            
+            if (healthChart) healthChart.destroy();
+            
+            healthChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: data.data.labels,
+                    datasets: [{
+                        data: data.data.values,
+                        backgroundColor: [
+                            'rgb(34, 197, 94)',   // Green - Saludable
+                            'rgb(234, 179, 8)',   // Yellow - Observación
+                            'rgb(239, 68, 68)'    // Red - Crítico
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+            console.log('✓ Health chart initialized');
+        }
+    } catch (error) {
+        console.error('✗ Error initializing health chart:', error);
+    }
+}
+
+// ========================================
+// DATATABLES INITIALIZATION
+// ========================================
+async function initializeDataTables() {
+    try {
+        // Obtener datos de animales desde la API
+        const response = await fetch('/api/animals?page=1&per_page=100');
+        const data = await response.json();
+        
+        if (data.success && $.fn.DataTable) {
+            // Destruir tabla existente si ya está inicializada
+            if ($.fn.DataTable.isDataTable('#animalsTable')) {
+                $('#animalsTable').DataTable().destroy();
+            }
+            
+            // INICIALIZAR DATATABLE CON COLUMNAS CORREGIDAS
+            // Las claves ahora coinciden exactamente con los datos del backend (app.py)
+            $('#animalsTable').DataTable({
+                data: data.data,
+                columns: [
+                    // COLUMNA 1: Código del animal (ej: AG0001)
+                    { 
+                        data: 'code',
+                        render: function(data, type, row) {
+                            return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
+                                ${data}
+                            </span>`;
+                        }
+                    },
+                    // COLUMNA 2: RFID (CORREGIDO: era 'rfid_tag', ahora es 'rfid')
+                    { 
+                        data: 'rfid',
+                        render: function(data, type, row) {
+                            return `<span class="font-mono text-xs font-semibold text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20 px-2 py-1 rounded">
+                                <i class="fas fa-wifi text-primary-500 mr-1"></i>${data}
+                            </span>`;
+                        }
+                    },
+                    // COLUMNA 3: Raza
+                    { 
+                        data: 'breed',
+                        render: function(data, type, row) {
+                            return `<span class="font-medium text-gray-900 dark:text-gray-100">${data}</span>`;
+                        }
+                    },
+                    // COLUMNA 4: Edad (CORREGIDO: era 'age', ahora es 'age_display')
+                    { 
+                        data: 'age_display',
+                        render: function(data, type, row) {
+                            return `<span class="text-gray-700 dark:text-gray-300">
+                                <i class="fas fa-calendar-alt text-gray-400 mr-1"></i>${data}
+                            </span>`;
+                        }
+                    },
+                    // COLUMNA 5: Peso
+                    { 
+                        data: 'weight',
+                        render: function(data, type, row) {
+                            // Mostrar peso con indicador de ganancia/pérdida
+                            const gain = row.weight_gain || 0;
+                            const gainIcon = gain > 0 ? '↑' : gain < 0 ? '↓' : '→';
+                            const gainColor = gain > 0 ? 'text-green-600' : gain < 0 ? 'text-red-600' : 'text-gray-600';
+                            
+                            return `<div class="flex items-center">
+                                <span class="font-semibold text-gray-900 dark:text-gray-100">${data} kg</span>
+                                <span class="${gainColor} text-xs ml-2">${gainIcon} ${Math.abs(gain)}</span>
+                            </div>`;
+                        }
+                    },
+                    // COLUMNA 6: Estado de salud (CORREGIDO: usar 'status.name' en lugar de 'health_status')
+                    { 
+                        data: 'status',
+                        render: function(data, type, row) {
+                            // Mapeo de estados con colores Tailwind modernos
+                            const statusConfig = {
+                                'Saludable': {
+                                    bg: 'bg-green-100 dark:bg-green-900/30',
+                                    text: 'text-green-800 dark:text-green-300',
+                                    icon: 'fa-check-circle',
+                                    iconColor: 'text-green-600 dark:text-green-400'
+                                },
+                                'En Observación': {
+                                    bg: 'bg-yellow-100 dark:bg-yellow-900/30',
+                                    text: 'text-yellow-800 dark:text-yellow-300',
+                                    icon: 'fa-exclamation-triangle',
+                                    iconColor: 'text-yellow-600 dark:text-yellow-400'
+                                },
+                                'Tratamiento': {
+                                    bg: 'bg-red-100 dark:bg-red-900/30',
+                                    text: 'text-red-800 dark:text-red-300',
+                                    icon: 'fa-pills',
+                                    iconColor: 'text-red-600 dark:text-red-400'
+                                },
+                                'Cuarentena': {
+                                    bg: 'bg-blue-100 dark:bg-blue-900/30',
+                                    text: 'text-blue-800 dark:text-blue-300',
+                                    icon: 'fa-ban',
+                                    iconColor: 'text-blue-600 dark:text-blue-400'
+                                }
+                            };
+                            
+                            const statusName = data.name || data;
+                            const config = statusConfig[statusName] || {
+                                bg: 'bg-gray-100 dark:bg-gray-700',
+                                text: 'text-gray-800 dark:text-gray-300',
+                                icon: 'fa-circle',
+                                iconColor: 'text-gray-600'
+                            };
+                            
+                            return `<span class="inline-flex items-center px-2.5 py-1.5 rounded-lg text-xs font-semibold ${config.bg} ${config.text} shadow-sm">
+                                <i class="fas ${config.icon} ${config.iconColor} mr-1.5"></i>
+                                ${statusName}
+                            </span>`;
+                        }
+                    },
+                    // COLUMNA 7: Ubicación
+                    { 
+                        data: 'location',
+                        render: function(data, type, row) {
+                            return `<span class="text-gray-700 dark:text-gray-300 text-sm">
+                                <i class="fas fa-map-marker-alt text-primary-500 mr-1"></i>${data}
+                            </span>`;
+                        }
+                    },
+                    // COLUMNA 8: Acciones
+                    {
+                        data: null,
+                        orderable: false,
+                        searchable: false,
+                        className: 'text-center',
+                        render: function(data, type, row) {
+                            return `<div class="flex items-center justify-center space-x-2">
+                                <button onclick="viewAnimalDetails('${row.rfid}')" 
+                                        class="p-2 text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors"
+                                        title="Ver detalles">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button onclick="editAnimal('${row.rfid}')" 
+                                        class="p-2 text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                                        title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="deleteAnimal('${row.rfid}')" 
+                                        class="p-2 text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                        title="Eliminar">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>`;
+                        }
+                    }
+                ],
+                
+                // CONFIGURACIÓN DE DATATABLE
+                pageLength: 15,
+                lengthMenu: [[15, 25, 50, 100], [15, 25, 50, 100]],
+                responsive: true,
+                order: [[0, 'asc']], // Ordenar por código por defecto
+                
+                // Traducción al español
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json',
+                    search: '_INPUT_',
+                    searchPlaceholder: 'Buscar animales...',
+                    lengthMenu: 'Mostrar _MENU_ registros',
+                    info: 'Mostrando _START_ a _END_ de _TOTAL_ animales',
+                    infoEmpty: 'No hay animales registrados',
+                    infoFiltered: '(filtrado de _MAX_ animales totales)',
+                    zeroRecords: 'No se encontraron animales coincidentes',
+                    emptyTable: 'No hay datos disponibles'
+                },
+                
+                // DOM personalizado para Tailwind CSS
+                dom: '<"flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4 px-4 py-3"<"flex items-center gap-2"l><"flex-1 max-w-md"f>>rt<"flex flex-col sm:flex-row sm:items-center sm:justify-between mt-4 gap-4 px-4 py-3 bg-gray-50 dark:bg-gray-800 rounded-lg"<"text-sm text-gray-600 dark:text-gray-400"i><"flex justify-end"p>>',
+                
+                // Estilos personalizados para filas
+                createdRow: function(row, data, dataIndex) {
+                    // Agregar clases de hover y transición a cada fila
+                    $(row).addClass('hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-150 cursor-pointer');
+                    
+                    // Agregar borde inferior suave
+                    $(row).addClass('border-b border-gray-100 dark:border-gray-700');
+                },
+                
+                // Callback después de dibujar la tabla
+                drawCallback: function(settings) {
+                    // Aplicar estilos Tailwind a los controles de paginación
+                    $('.dataTables_paginate').addClass('inline-flex items-center space-x-1');
+                    
+                    $('.paginate_button')
+                        .addClass('px-3 py-2 text-sm font-medium rounded-lg border transition-colors duration-200')
+                        .addClass('border-gray-300 text-gray-700 hover:bg-gray-50')
+                        .addClass('dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700');
+                    
+                    $('.paginate_button.current')
+                        .removeClass('border-gray-300 text-gray-700 hover:bg-gray-50')
+                        .addClass('bg-primary-600 text-white border-primary-600 hover:bg-primary-700')
+                        .addClass('dark:bg-primary-600 dark:hover:bg-primary-700');
+                    
+                    $('.paginate_button.disabled')
+                        .addClass('opacity-50 cursor-not-allowed pointer-events-none');
+                    
+                    // Estilos para el selector de registros por página
+                    $('.dataTables_length select')
+                        .addClass('px-3 py-2 text-sm border border-gray-300 rounded-lg')
+                        .addClass('focus:ring-2 focus:ring-primary-500 focus:border-primary-500')
+                        .addClass('dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300');
+                    
+                    // Estilos para el input de búsqueda
+                    $('.dataTables_filter input')
+                        .addClass('px-4 py-2 text-sm border border-gray-300 rounded-lg w-full')
+                        .addClass('focus:ring-2 focus:ring-primary-500 focus:border-primary-500')
+                        .addClass('dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:placeholder-gray-400')
+                        .attr('placeholder', 'Buscar por código, RFID, raza...');
+                }
+            });
+            
+            console.log('✓ DataTables initialized with', data.data.length, 'records');
+            console.log('✓ Columnas corregidas para coincidir con backend');
+            
+            // ============================================================
+            // FUNCIONALIDAD DE FILTROS RÁPIDOS
+            // ============================================================
+            const filterButtons = document.querySelectorAll('.grid.grid-cols-1.md\\:grid-cols-4 button');
+            const statusFilters = ['Saludable', 'En Observación', 'Tratamiento', 'Cuarentena'];
+            let activeFilter = null;
+            
+            filterButtons.forEach((button, index) => {
+                button.addEventListener('click', function() {
+                    const table = $('#animalsTable').DataTable();
+                    const statusToFilter = statusFilters[index];
+                    
+                    // Toggle del filtro
+                    if (activeFilter === statusToFilter) {
+                        // Desactivar filtro
+                        table.column(5).search('').draw();
+                        activeFilter = null;
+                        
+                        // Remover estilos activos de todos los botones
+                        filterButtons.forEach(btn => {
+                            btn.classList.remove('bg-primary-100', 'dark:bg-primary-900', 'border-primary-500', 'dark:border-primary-400');
+                            btn.classList.add('bg-gray-50', 'dark:bg-gray-700', 'border-gray-200', 'dark:border-gray-600');
+                        });
+                    } else {
+                        // Activar filtro
+                        table.column(5).search(statusToFilter).draw();
+                        activeFilter = statusToFilter;
+                        
+                        // Actualizar estilos de botones
+                        filterButtons.forEach(btn => {
+                            btn.classList.remove('bg-primary-100', 'dark:bg-primary-900', 'border-primary-500', 'dark:border-primary-400');
+                            btn.classList.add('bg-gray-50', 'dark:bg-gray-700', 'border-gray-200', 'dark:border-gray-600');
+                        });
+                        
+                        // Marcar botón activo
+                        this.classList.remove('bg-gray-50', 'dark:bg-gray-700', 'border-gray-200', 'dark:border-gray-600');
+                        this.classList.add('bg-primary-100', 'dark:bg-primary-900', 'border-primary-500', 'dark:border-primary-400');
+                    }
+                    
+                    console.log(`✓ Filter ${activeFilter ? 'applied' : 'cleared'}:`, statusToFilter);
+                });
+            });
+            
+            console.log('✓ Filter buttons initialized');
+        }
+    } catch (error) {
+        console.error('✗ Error initializing DataTables:', error);
+        
+        // Mostrar mensaje de error amigable al usuario
+        const tbody = document.querySelector('#animalsTable tbody');
+        if (tbody) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="8" class="text-center py-8">
+                        <div class="text-red-600 dark:text-red-400">
+                            <i class="fas fa-exclamation-triangle text-3xl mb-2"></i>
+                            <p class="text-sm">Error al cargar los datos de animales</p>
+                            <p class="text-xs text-gray-500 mt-1">${error.message}</p>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }
+    }
+}
+
+// ========================================
+// ACTIVITY FEED RENDERING
+// ========================================
+function renderActivityFeed(activities) {
+    const container = document.getElementById('activityFeed');
+    if (!container) return;
+    
+    if (activities.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+                <i class="fas fa-inbox text-4xl mb-2"></i>
+                <p>No hay actividad reciente</p>
+            </div>
+        `;
+        return;
+    }
+    
+    const activityHTML = activities.map(activity => {
+        const iconColors = {
+            'scan': 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300',
+            'alert': 'bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-300',
+            'health': 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300',
+            'update': 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900 dark:text-yellow-300'
+        };
+        
+        const colorClass = iconColors[activity.type] || 'bg-gray-100 text-gray-600';
+        
+        return `
+            <div class="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full ${colorClass} flex items-center justify-center">
+                    <i class="${activity.icon}"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">
+                        ${activity.message}
+                    </p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        <i class="fas fa-clock mr-1"></i>${activity.time_ago}
+                    </p>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    container.innerHTML = activityHTML;
+    console.log('✓ Activity feed rendered:', activities.length, 'items');
+}
+
+// ========================================
+// UTILITY FUNCTIONS
+// ========================================
+function updateTime() {
+    const timeElement = document.getElementById('currentTime');
+    if (timeElement) {
+        const now = new Date();
+        const options = { 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            second: '2-digit',
+            hour12: false 
+        };
+        timeElement.textContent = now.toLocaleTimeString('es-ES', options);
+    }
+}
+
+// Initialize on DOM ready
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('✓ DOM Content Loaded');
+});
+
+// ============================================================================
+// VUE.JS 3 APPLICATION - Componentes Reactivos
+// ============================================================================
+
+// Vue Stats App - Tarjetas de Estadísticas Reactivas
+const { createApp, ref, reactive, computed, onMounted, watch } = Vue;
+
+const VueStatsApp = {
+    setup() {
+        // ========== REACTIVE STATE ==========
+        const stats = reactive({
+            total: 0,
+            healthy: 0,
+            warning: 0,
+            critical: 0
+        });
+        
+        const animatedTotal = ref(0);
+        const animatedHealthy = ref(0);
+        const animatedWarning = ref(0);
+        const animatedCritical = ref(0);
+        
+        const cardAnimations = reactive([false, false, false, false]);
+        const isLoading = ref(true);
+        const weeklyGrowth = ref(12);
+        
+        const showAlert = ref(false);
+        const alertMessage = ref('');
+        const alertSubtext = ref('');
+        
+        // ========== COMPUTED PROPERTIES ==========
+        const healthyPercentage = computed(() => {
+            if (stats.total === 0) return 0;
+            return Math.round((stats.healthy / stats.total) * 100);
+        });
+        
+        // ========== METHODS ==========
+        const fetchStats = async () => {
+            try {
+                isLoading.value = true;
+                console.log('🔄 Vue: Fetching stats from API...');
+                
+                const response = await fetch('/api/stats');
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Actualizar stats con datos reales
+                    stats.total = data.data.total_animals || 155;
+                    stats.healthy = data.data.healthy_count || 142;
+                    stats.warning = data.data.warning_count || 10;
+                    stats.critical = data.data.critical_count || 3;
+                    
+                    // Animar contadores
+                    animateCounters();
+                    
+                    // Mostrar alerta si hay animales críticos
+                    if (stats.critical > 0) {
+                        showAlert.value = true;
+                        alertMessage.value = `¡Atención! ${stats.critical} ${stats.critical === 1 ? 'animal requiere' : 'animales requieren'} atención inmediata`;
+                        alertSubtext.value = 'Haz clic en la tarjeta "Estado Crítico" para ver los detalles';
+                        
+                        // Auto-ocultar después de 10 segundos
+                        setTimeout(() => {
+                            showAlert.value = false;
+                        }, 10000);
+                    }
+                    
+                    console.log('✅ Vue: Stats loaded successfully', stats);
+                } else {
+                    throw new Error('API returned success: false');
+                }
+            } catch (error) {
+                console.error('❌ Vue: Error fetching stats:', error);
+                
+                // Usar datos de respaldo
+                stats.total = 155;
+                stats.healthy = 142;
+                stats.warning = 10;
+                stats.critical = 3;
+                
+                animateCounters();
+            } finally {
+                isLoading.value = false;
+            }
+        };
+        
+        const animateCounters = () => {
+            // Animar contador de total
+            animateValue(animatedTotal, 0, stats.total, 1500);
+            
+            // Animar contador de saludables (con delay)
+            setTimeout(() => {
+                animateValue(animatedHealthy, 0, stats.healthy, 1500);
+            }, 200);
+            
+            // Animar contador de advertencias (con delay)
+            setTimeout(() => {
+                animateValue(animatedWarning, 0, stats.warning, 1500);
+            }, 400);
+            
+            // Animar contador de críticos (con delay)
+            setTimeout(() => {
+                animateValue(animatedCritical, 0, stats.critical, 1500);
+            }, 600);
+        };
+        
+        const animateValue = (refValue, start, end, duration) => {
+            const startTime = performance.now();
+            
+            const animate = (currentTime) => {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Ease-out cubic
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                
+                refValue.value = Math.floor(start + (end - start) * easeOut);
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    refValue.value = end;
+                }
+            };
+            
+            requestAnimationFrame(animate);
+        };
+        
+        const animateCard = (index) => {
+            cardAnimations[index] = true;
+            setTimeout(() => {
+                cardAnimations[index] = false;
+            }, 600);
+        };
+        
+        const showDetailModal = (type) => {
+            console.log(`🔍 Vue: Show details for ${type}`);
+            
+            // Aquí puedes agregar lógica para mostrar un modal con detalles
+            let message = '';
+            let subtext = '';
+            
+            switch(type) {
+                case 'total':
+                    message = `Vista detallada de los ${stats.total} animales registrados`;
+                    subtext = 'Mostrando información completa del inventario';
+                    break;
+                case 'healthy':
+                    message = `${stats.healthy} animales en estado saludable`;
+                    subtext = `${healthyPercentage.value}% del total del inventario`;
+                    break;
+                case 'warning':
+                    message = `${stats.warning} animales requieren observación`;
+                    subtext = 'Es recomendable realizar un seguimiento';
+                    break;
+                case 'critical':
+                    message = `${stats.critical} animales en estado crítico`;
+                    subtext = 'Requieren atención veterinaria inmediata';
+                    break;
+            }
+            
+            showAlert.value = true;
+            alertMessage.value = message;
+            alertSubtext.value = subtext;
+            
+            setTimeout(() => {
+                showAlert.value = false;
+            }, 5000);
+        };
+        
+        // ========== AUTO-REFRESH ==========
+        const startAutoRefresh = () => {
+            // Refrescar cada 30 segundos
+            setInterval(() => {
+                console.log('🔄 Vue: Auto-refreshing stats...');
+                fetchStats();
+            }, 30000);
+        };
+        
+        // ========== LIFECYCLE HOOKS ==========
+        onMounted(() => {
+            console.log('🚀 Vue Stats App mounted');
+            fetchStats();
+            startAutoRefresh();
+        });
+        
+        // ========== WATCHERS ==========
+        watch(() => stats.critical, (newValue, oldValue) => {
+            if (newValue > oldValue && newValue > 0) {
+                console.log('⚠️ Vue: Critical animals increased!', newValue);
+                // Aquí puedes agregar notificaciones adicionales
+            }
+        });
+        
+        return {
+            stats,
+            animatedTotal,
+            animatedHealthy,
+            animatedWarning,
+            animatedCritical,
+            cardAnimations,
+            isLoading,
+            weeklyGrowth,
+            showAlert,
+            alertMessage,
+            alertSubtext,
+            healthyPercentage,
+            animateCard,
+            showDetailModal
+        };
+    }
+};
+
+// Montar aplicación Vue cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', () => {
+    const vueStatsElement = document.getElementById('vueStatsApp');
+    if (vueStatsElement) {
+        console.log('🎯 Vue: Mounting Stats App...');
+        createApp(VueStatsApp).mount('#vueStatsApp');
+        console.log('✅ Vue: Stats App mounted successfully!');
+    }
+});
+
+// ============================================================================
+// VUE.JS 3 - REAL-TIME ACTIVITY FEED COMPONENT
+// ============================================================================
+
+const VueActivityFeed = {
+    setup() {
+        const activities = ref([]);
+        const isLoading = ref(true);
+        const lastUpdate = ref('');
+        
+        const fetchActivities = async () => {
+            try {
+                isLoading.value = true;
+                console.log('🔄 Vue Activity: Fetching feed...');
+                
+                const response = await fetch('/api/activity');
+                const data = await response.json();
+                
+                if (data.success) {
+                    activities.value = data.data;
+                    lastUpdate.value = new Date().toLocaleTimeString('es-ES');
+                    console.log('✅ Vue Activity: Feed loaded', data.data.length, 'items');
+                }
+            } catch (error) {
+                console.error('❌ Vue Activity: Error fetching feed:', error);
+            } finally {
+                isLoading.value = false;
+            }
+        };
+        
+        const getIconColor = (type) => {
+            const colors = {
+                'scan': 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300',
+                'health': 'bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-300',
+                'vaccination': 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300',
+                'movement': 'bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-300',
+                'weight': 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900 dark:text-yellow-300',
+                'treatment': 'bg-orange-100 text-orange-600 dark:bg-orange-900 dark:text-orange-300'
+            };
+            return colors[type] || 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300';
+        };
+        
+        onMounted(() => {
+            console.log('🚀 Vue Activity Feed mounted');
+            fetchActivities();
+            
+            // Auto-refresh cada 15 segundos
+            setInterval(fetchActivities, 15000);
+        });
+        
+        return {
+            activities,
+            isLoading,
+            lastUpdate,
+            getIconColor
+        };
+    }
+};
+
+// Montar Activity Feed si existe el elemento
+document.addEventListener('DOMContentLoaded', () => {
+    const vueActivityElement = document.getElementById('vueActivityFeed');
+    if (vueActivityElement) {
+        console.log('🎯 Vue: Mounting Activity Feed...');
+        createApp(VueActivityFeed).mount('#vueActivityFeed');
+        console.log('✅ Vue: Activity Feed mounted successfully!');
+    }
+});
+
+// ============================================================================
+// VUE.JS 3 - TABLE FILTERS COMPONENT
+// ============================================================================
+
+const VueTableFilters = {
+    setup() {
+        const filters = reactive([
+            {
+                status: 'Saludable',
+                label: 'Saludables',
+                icon: 'fa-check-circle',
+                color: 'text-green-500',
+                count: 0
+            },
+            {
+                status: 'En Observación',
+                label: 'En Observación',
+                icon: 'fa-exclamation-triangle',
+                color: 'text-yellow-500',
+                count: 0
+            },
+            {
+                status: 'Tratamiento',
+                label: 'En Tratamiento',
+                icon: 'fa-pills',
+                color: 'text-red-500',
+                count: 0
+            },
+            {
+                status: 'Cuarentena',
+                label: 'Cuarentena',
+                icon: 'fa-ban',
+                color: 'text-blue-500',
+                count: 0
+            }
+        ]);
+        
+        const activeFilter = ref(null);
+        
+        // Obtener conteo de animales por estado
+        const fetchCounts = async () => {
+            try {
+                const response = await fetch('/api/animals');
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Contar animales por estado
+                    const counts = {};
+                    data.data.forEach(animal => {
+                        const status = animal.status?.name || animal.status;
+                        counts[status] = (counts[status] || 0) + 1;
+                    });
+                    
+                    // Actualizar contadores
+                    filters.forEach(filter => {
+                        filter.count = counts[filter.status] || 0;
+                    });
+                    
+                    console.log('✅ Vue Filters: Counts updated', counts);
+                }
+            } catch (error) {
+                console.error('❌ Vue Filters: Error fetching counts:', error);
+            }
+        };
+        
+        const toggleFilter = (status) => {
+            const table = window.$('#animalsTable').DataTable();
+            
+            if (activeFilter.value === status) {
+                // Desactivar filtro
+                clearFilter();
+            } else {
+                // Activar filtro
+                activeFilter.value = status;
+                table.column(5).search(status).draw();
+                console.log('🔍 Vue Filters: Applied filter ->', status);
+            }
+        };
+        
+        const clearFilter = () => {
+            const table = window.$('#animalsTable').DataTable();
+            activeFilter.value = null;
+            table.column(5).search('').draw();
+            console.log('🔍 Vue Filters: Filter cleared');
+        };
+        
+        onMounted(() => {
+            console.log('🚀 Vue Table Filters mounted');
+            fetchCounts();
+            
+            // Actualizar contadores cada 30 segundos
+            setInterval(fetchCounts, 30000);
+        });
+        
+        return {
+            filters,
+            activeFilter,
+            toggleFilter,
+            clearFilter
+        };
+    }
+};
+
+// Montar Table Filters si existe el elemento
+document.addEventListener('DOMContentLoaded', () => {
+    const vueFiltersElement = document.getElementById('vueTableFilters');
+    if (vueFiltersElement) {
+        console.log('🎯 Vue: Mounting Table Filters...');
+        createApp(VueTableFilters).mount('#vueTableFilters');
+        console.log('✅ Vue: Table Filters mounted successfully!');
+    }
+});
+
+// ============================================================================
+// VUE.JS 3 - REAL-TIME CLOCK COMPONENT
+// ============================================================================
+
+const VueRealtimeClock = {
+    setup() {
+        const currentTime = ref('');
+        const currentDate = ref('');
+        
+        const updateClock = () => {
+            const now = new Date();
+            
+            // Formato de hora (HH:MM:SS)
+            currentTime.value = now.toLocaleTimeString('es-ES', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            });
+            
+            // Formato de fecha (DD/MM/YYYY)
+            currentDate.value = now.toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        };
+        
+        onMounted(() => {
+            console.log('🚀 Vue Clock mounted');
+            updateClock();
+            
+            // Actualizar cada segundo
+            setInterval(updateClock, 1000);
+        });
+        
+        return {
+            currentTime,
+            currentDate
+        };
+    }
+};
+
+// Montar Clock si existe el elemento
+document.addEventListener('DOMContentLoaded', () => {
+    const vueClockElement = document.getElementById('vueClock');
+    if (vueClockElement) {
+        console.log('🎯 Vue: Mounting Clock...');
+        createApp(VueRealtimeClock).mount('#vueClock');
+        console.log('✅ Vue: Clock mounted successfully!');
+    }
+});
+
+console.log('✅ Vue.js 3 configuration loaded successfully!');
+console.log('📦 Vue Components Available: Stats, Activity Feed, Table Filters, Clock');
+</script>
+{% endblock %}

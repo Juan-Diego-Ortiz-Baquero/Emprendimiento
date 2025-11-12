@@ -1,0 +1,551 @@
+{% extends "layout_new.html" %}
+
+{% block title %}Dashboard - {{ app_name }}{% endblock %}
+
+{% block content %}
+<!-- Dashboard Content -->
+<div class="dashboard-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-title">
+            <h1>Dashboard Principal</h1>
+            <p class="page-subtitle">Resumen general del sistema de trazabilidad</p>
+        </div>
+        <div class="page-actions">
+            <button class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                Nuevo Animal
+            </button>
+        </div>
+    </div>
+    
+    <!-- Stats Cards Grid -->
+    <div class="stats-grid">
+        <!-- Total Animals Card -->
+        <div class="stat-card stat-card-primary">
+            <div class="stat-icon">
+                <i class="fas fa-cow"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ stats.total }}</div>
+                <div class="stat-label">Total Animales</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>+12 esta semana</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Healthy Animals Card -->
+        <div class="stat-card stat-card-success">
+            <div class="stat-icon">
+                <i class="fas fa-heart-pulse"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ stats.healthy }}</div>
+                <div class="stat-label">Saludables</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-check-circle"></i>
+                    <span>{{ stats.healthy_percentage }}% del total</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Warning Animals Card -->
+        <div class="stat-card stat-card-warning">
+            <div class="stat-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ stats.warning }}</div>
+                <div class="stat-label">En Observación</div>
+                <div class="stat-change neutral">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Requieren atención</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Critical Animals Card -->
+        <div class="stat-card stat-card-danger">
+            <div class="stat-icon">
+                <i class="fas fa-ambulance"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ stats.critical }}</div>
+                <div class="stat-label">Estado Crítico</div>
+                {% if stats.critical > 0 %}
+                <div class="stat-change negative">
+                    <i class="fas fa-bell"></i>
+                    <span>Atención inmediata</span>
+                </div>
+                {% else %}
+                <div class="stat-change positive">
+                    <i class="fas fa-check"></i>
+                    <span>Sin alertas</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Charts Row -->
+    <div class="charts-row">
+        <!-- Scans Timeline Chart -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>Escaneos RFID - Últimos 7 días</h3>
+                <button class="btn btn-sm btn-ghost">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+            </div>
+            <div class="chart-body">
+                <canvas id="scansChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Health Distribution Chart -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>Distribución de Salud</h3>
+                <button class="btn btn-sm btn-ghost">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+            </div>
+            <div class="chart-body">
+                <canvas id="healthChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Activity Feed -->
+    <div class="activity-section">
+        <div class="activity-header">
+            <h3>Actividad Reciente</h3>
+            <button class="btn btn-sm btn-ghost" onclick="location.reload()">
+                <i class="fas fa-sync-alt"></i>
+                Actualizar
+            </button>
+        </div>
+        
+        <div class="activity-feed" id="activityFeed">
+            <!-- Activities will be loaded via JavaScript -->
+            <div class="activity-loading">
+                <i class="fas fa-spinner fa-spin"></i>
+                <span>Cargando actividad...</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Dashboard Styles */
+.dashboard-container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 32px;
+}
+
+.page-title h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin-bottom: 4px;
+}
+
+.page-subtitle {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+}
+
+.page-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-primary {
+    background: var(--color-primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--color-primary-hover);
+    transform: translateY(-1px);
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+.btn-ghost {
+    background: transparent;
+    color: var(--color-text-secondary);
+}
+
+.btn-ghost:hover {
+    background: var(--color-bg-tertiary);
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.stat-card {
+    background: var(--color-bg-secondary);
+    padding: 24px;
+    border-radius: 16px;
+    border: 1px solid var(--color-sidebar-border);
+    display: flex;
+    gap: 20px;
+    transition: all 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.stat-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+}
+
+.stat-card-primary .stat-icon {
+    background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%);
+}
+
+.stat-card-success .stat-icon {
+    background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
+}
+
+.stat-card-warning .stat-icon {
+    background: linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%);
+}
+
+.stat-card-danger .stat-icon {
+    background: linear-gradient(135deg, #EF4444 0%, #F87171 100%);
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-value {
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--color-text-primary);
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    margin-bottom: 8px;
+}
+
+.stat-change {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.stat-change.positive {
+    background: var(--color-success-light);
+    color: var(--color-success);
+}
+
+.stat-change.negative {
+    background: var(--color-error-light);
+    color: var(--color-error);
+}
+
+.stat-change.neutral {
+    background: var(--color-warning-light);
+    color: var(--color-warning);
+}
+
+/* Charts Row */
+.charts-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.chart-card {
+    background: var(--color-bg-secondary);
+    padding: 24px;
+    border-radius: 16px;
+    border: 1px solid var(--color-sidebar-border);
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.chart-header h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-text-primary);
+}
+
+.chart-body {
+    position: relative;
+    height: 300px;
+}
+
+/* Activity Section */
+.activity-section {
+    background: var(--color-bg-secondary);
+    padding: 24px;
+    border-radius: 16px;
+    border: 1px solid var(--color-sidebar-border);
+}
+
+.activity-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.activity-header h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-text-primary);
+}
+
+.activity-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.activity-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 40px;
+    color: var(--color-text-tertiary);
+}
+
+.activity-item {
+    display: flex;
+    gap: 16px;
+    padding: 16px;
+    border-radius: 12px;
+    transition: background 0.2s ease;
+}
+
+.activity-item:hover {
+    background: var(--color-bg-tertiary);
+}
+
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.activity-icon.blue { background: #DBEAFE; color: #3B82F6; }
+.activity-icon.green { background: #D1FAE5; color: #10B981; }
+.activity-icon.red { background: #FEE2E2; color: #EF4444; }
+.activity-icon.yellow { background: #FEF3C7; color: #F59E0B; }
+.activity-icon.purple { background: #EDE9FE; color: #8B5CF6; }
+.activity-icon.orange { background: #FFEDD5; color: #F97316; }
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-message {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-text-primary);
+    margin-bottom: 4px;
+}
+
+.activity-meta {
+    font-size: 12px;
+    color: var(--color-text-tertiary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .charts-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .page-header {
+        flex-direction: column;
+        gap: 16px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Initialize Charts
+document.addEventListener('DOMContentLoaded', async function() {
+    console.log('✓ Dashboard loaded');
+    
+    // Load Activity Feed
+    await loadActivityFeed();
+    
+    // Initialize Charts
+    await initializeCharts();
+    
+    // Auto-refresh every 30 seconds
+    setInterval(loadActivityFeed, 30000);
+});
+
+async function loadActivityFeed() {
+    try {
+        const response = await fetch('/api/activity');
+        const data = await response.json();
+        
+        if (data.success) {
+            renderActivityFeed(data.data);
+        }
+    } catch (error) {
+        console.error('Error loading activity:', error);
+    }
+}
+
+function renderActivityFeed(activities) {
+    const feed = document.getElementById('activityFeed');
+    
+    if (activities.length === 0) {
+        feed.innerHTML = `
+            <div class="activity-loading">
+                <i class="fas fa-inbox"></i>
+                <span>No hay actividad reciente</span>
+            </div>
+        `;
+        return;
+    }
+    
+    feed.innerHTML = activities.map(activity => `
+        <div class="activity-item">
+            <div class="activity-icon ${activity.color}">
+                <i class="fas fa-${activity.icon}"></i>
+            </div>
+            <div class="activity-content">
+                <div class="activity-message">${activity.message}</div>
+                <div class="activity-meta">
+                    <i class="fas fa-clock"></i> ${activity.time_ago}
+                    <span style="margin: 0 8px;">•</span>
+                    <i class="fas fa-user"></i> ${activity.user}
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function initializeCharts() {
+    try {
+        // Scans Timeline Chart
+        const scansResponse = await fetch('/api/charts/scans-timeline');
+        const scansData = await scansResponse.json();
+        
+        if (scansData.success) {
+            new Chart(document.getElementById('scansChart'), {
+                type: 'line',
+                data: {
+                    labels: scansData.data.labels,
+                    datasets: [{
+                        label: 'Escaneos',
+                        data: scansData.data.values,
+                        borderColor: '#3B82F6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+        
+        // Health Distribution Chart
+        const healthResponse = await fetch('/api/charts/health-distribution');
+        const healthData = await healthResponse.json();
+        
+        if (healthData.success) {
+            new Chart(document.getElementById('healthChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: healthData.data.labels,
+                    datasets: [{
+                        data: healthData.data.values,
+                        backgroundColor: ['#10B981', '#F59E0B', '#EF4444'],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
+    } catch (error) {
+        console.error('Error initializing charts:', error);
+    }
+}
+</script>
+{% endblock %}
