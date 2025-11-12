@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroTrace - Sistema Responsive Optimizado por Dispositivo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #1e293b;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1.125rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 3rem 2rem;
+        }
+
+        .section {
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .section-title i {
+            color: #667eea;
+            font-size: 2rem;
+        }
+
+        .section-description {
+            font-size: 1rem;
+            color: #64748b;
+            margin-bottom: 2rem;
+        }
+
+        .device-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .device-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .device-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+        }
+
+        .device-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .device-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        .device-resolution {
+            font-size: 0.875rem;
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-family: 'Courier New', monospace;
+        }
+
+        .device-features {
+            list-style: none;
+        }
+
+        .device-features li {
+            padding: 0.5rem 0;
+            color: #475569;
+            font-size: 0.938rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .device-features li i {
+            color: #10b981;
+            font-size: 1rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-description {
+            font-size: 0.875rem;
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        .breakpoints-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 2rem;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .breakpoints-table thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .breakpoints-table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .breakpoints-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.938rem;
+        }
+
+        .breakpoints-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .breakpoints-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .code-block {
+            background: #1e293b;
+            color: #e5e7eb;
+            padding: 1.5rem;
+            border-radius: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+
+        .code-block code {
+            color: #10b981;
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            padding: 0.125rem 0.375rem;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .cta-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 3rem;
+            border-radius: 16px;
+            text-align: center;
+            color: white;
+            margin-top: 3rem;
+        }
+
+        .cta-section h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .cta-section p {
+            font-size: 1.125rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-secondary:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        .footer {
+            background: #f8fafc;
+            padding: 2rem;
+            text-align: center;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .footer p {
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .header {
+                padding: 2rem 1rem;
+            }
+
+            .header h1 {
+                font-size: 1.75rem;
+            }
+
+            .content {
+                padding: 2rem 1rem;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+            }
+
+            .device-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .cta-section {
+                padding: 2rem 1rem;
+            }
+
+            .cta-section h2 {
+                font-size: 1.5rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎨 Sistema Responsive Optimizado</h1>
+            <p>Diseño específico para cada tipo de dispositivo - De 320px a 2560px+</p>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Descripción General -->
+            <div class="section">
+                <h2 class="section-title">
+                    <i class="fas fa-info-circle"></i>
+                    ¿Qué hemos optimizado?
+                </h2>
+                <p class="section-description">
+                    Hemos creado un sistema responsive completamente optimizado con <span class="highlight">breakpoints específicos</span> para cada tipo de dispositivo. 
+                    No es un diseño genérico, sino una experiencia única para cada pantalla.
+                </p>
+
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <h3 class="feature-title">Móviles Optimizados</h3>
+                        <p class="feature-description">
+                            Diseño específico para iPhone SE, 12, 13, 14, Galaxy S y más. Desde 320px hasta 599px.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-tablet-alt"></i>
+                        </div>
+                        <h3 class="feature-title">Tablets Perfectas</h3>
+                        <p class="feature-description">
+                            iPad, Galaxy Tab, Surface optimizados tanto en portrait como landscape. 600px a 1023px.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-laptop"></i>
+                        </div>
+                        <h3 class="feature-title">Laptops Adaptables</h3>
+                        <p class="feature-description">
+                            MacBook, Surface Laptop, y portátiles de 11" a 15". Desde 1024px hasta 1919px.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-desktop"></i>
+                        </div>
+                        <h3 class="feature-title">Desktop Premium</h3>
+                        <p class="feature-description">
+                            Monitores de 24" a 32"+ completamente optimizados. 1920px hasta 2560px y más.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dispositivos Específicos -->
+            <div class="section">
+                <h2 class="section-title">
+                    <i class="fas fa-devices"></i>
+                    Dispositivos Optimizados
+                </h2>
+
+                <div class="device-grid">
+                    <!-- Desktop Grande -->
+                    <div class="device-card">
+                        <div class="device-icon">
+                            <i class="fas fa-tv"></i>
+                        </div>
+                        <h3 class="device-name">Desktop Grande</h3>
+                        <p class="device-resolution">1920px - 2560px+</p>
+                        <ul class="device-features">
+                            <li><i class="fas fa-check-circle"></i> Grid de 4 columnas amplio</li>
+                            <li><i class="fas fa-check-circle"></i> Padding 3-4rem</li>
+                            <li><i class="fas fa-check-circle"></i> Font-size: 17px</li>
+                            <li><i class="fas fa-check-circle"></i> Botones grandes (0.875rem)</li>
+                            <li><i class="fas fa-check-circle"></i> Tablas amplias optimizadas</li>
+                        </ul>
+                    </div>
+
+                    <!-- Desktop Estándar -->
+                    <div class="device-card">
+                        <div class="device-icon">
+                            <i class="fas fa-desktop"></i>
+                        </div>
+                        <h3 class="device-name">Desktop Estándar</h3>
+                        <p class="device-resolution">1366px - 1919px</p>
+                        <ul class="device-features">
+                            <li><i class="fas fa-check-circle"></i> Grid de 4 columnas</li>
+                            <li><i class="fas fa-check-circle"></i> Padding 2.5-3rem</li>
+                            <li><i class="fas fa-check-circle"></i> Font-size: 16px</li>
+                            <li><i class="fas fa-check-circle"></i> Sidebar completo visible</li>
+                            <li><i class="fas fa-check-circle"></i> Modal 800px width</li>
+                        </ul>
+                    </div>
+
+                    <!-- Laptop Compacto -->
+                    <div class="device-card">
+                        <div class="device-icon">
+                            <i class="fas fa-laptop"></i>
+                        </div>
+                        <h3 class="device-name">Laptop Compacto</h3>
+                        <p class="device-resolution">1280px - 1365px</p>
+                        <ul class="device-features">
+                            <li><i class="fas fa-check-circle"></i> Grid de 4 columnas compacto</li>
+                            <li><i class="fas fa-check-circle"></i> Padding 2-2.5rem</li>
+                            <li><i class="fas fa-check-circle"></i> Font-size: 15px</li>
+                            <li><i class="fas fa-check-circle"></i> Sidebar 260px</li>
+                            <li><i class="fas fa-check-circle"></i> Botones medianos</li>
+                        </ul>
+                    </div>
+
+                    <!-- Laptop Pequeño -->
+                    <div class="device-card">
+                        <div class="device-icon">
+                            <i class="fas fa-laptop-code"></i>
+                        </div>
+                        <h3 class="device-name">Laptop Pequeño</h3>
+                        <p class="device-resolution">1024px - 1279px</p>
+                        <ul class="device-features">
+                            <li><i class="fas fa-check-circle"></i> Grid de 2 columnas</li>
+                            <li><i class="fas fa-check-circle"></i> Padding 2rem</li>
+                            <li><i class="fas fa-check-circle"></i> Font-size: 14px</li>
+                            <li><i class="fas fa-check-circle"></i> Sidebar 240px</li>
+                            <li><i class="fas fa-check-circle"></i> Iconos 48px</li>
+                        </ul>
+                    </div>
+
+                    <!-- Tablet Horizontal -->
+                    <div class="device-card">
+                        <div class="device-icon">
+                            <i class="fas fa-tablet-screen-button"></i>
+                        </div>
+                        <h3 class="device-name">Tablet Horizontal</h3>
+                        <p class="device-resolution">768px - 1023px</p>
+                        <ul class="device-features">
+                            <li><i class="fas fa-check-circle"></i> Header móvil visible</li>
+                            <li><i class="fas fa-check-circle"></i> Sidebar con overlay</li>
+                            <li><i class="fas fa-check-circle"></i> Grid de 2 columnas</li>
+                            <li><i class="fas fa-check-circle"></i> Tabla con scroll horizontal</li>
+                            <li><i class="fas fa-check-circle"></i> Padding 1.5rem</li>
+                        </ul>
+                    </div>
+
+                    <!-- Tablet Vertical -->
+                    <div class="device-card">
+                        <div class="device-icon">
+                            <i class="fas fa-tablet"></i>
+                        </div>
+                        <h3 class="device-name">Tablet Vertical</h3>
+                        <p class="device-resolution">600px - 767px</p>
+                        <ul class="device-features">
+                            <li><i class="fas fa-check-circle"></i> Grid de 2 columnas</li>
+                            <li><i class="fas fa-check-circle"></i> Tablas → Cards</li>
+                            <li><i class="fas fa-check-circle"></i> Padding 1rem</li>
+                            <li><i class="fas fa-check-circle"></i> Font-size: 14px</li>
+                            <li><i class="fas fa-check-circle"></i> Filtros en grid 2x</li>
+                        </ul>
+                    </div>
+
+                    <!-- Móvil Horizontal -->
+                    <div class="device-card">
+                        <div class="device-icon">
+                            <i class="fas fa-mobile-screen"></i>
+                        </div>
+                        <h3 class="device-name">Móvil Horizontal</h3>
+                        <p class="device-resolution">480px - 599px</p>
+                        <ul class="device-features">
+                            <li><i class="fas fa-check-circle"></i> Grid 2 columnas compacto</li>
+                            <li><i class="fas fa-check-circle"></i> Solo cards móviles</li>
+                            <li><i class="fas fa-check-circle"></i> Font-size: 13px</li>
+                            <li><i class="fas fa-check-circle"></i> Padding 0.875rem</li>
+                            <li><i class="fas fa-check-circle"></i> Modal casi fullscreen</li>
+                        </ul>
+                    </div>
+
+                    <!-- Móvil Vertical -->
+                    <div class="device-card">
+                        <div class="device-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <h3 class="device-name">Móvil Vertical</h3>
+                        <p class="device-resolution">375px - 479px</p>
+                        <ul class="device-features">
+                            <li><i class="fas fa-check-circle"></i> Grid 1 columna</li>
+                            <li><i class="fas fa-check-circle"></i> Cards optimizados</li>
+                            <li><i class="fas fa-check-circle"></i> Font-size: 13px</li>
+                            <li><i class="fas fa-check-circle"></i> Botones full-width</li>
+                            <li><i class="fas fa-check-circle"></i> Modal fullscreen</li>
+                        </ul>
+                    </div>
+
+                    <!-- Móvil Pequeño -->
+                    <div class="device-card">
+                        <div class="device-icon">
+                            <i class="fas fa-mobile"></i>
+                        </div>
+                        <h3 class="device-name">Móvil Pequeño</h3>
+                        <p class="device-resolution">320px - 374px</p>
+                        <ul class="device-features">
+                            <li><i class="fas fa-check-circle"></i> Ultra compacto</li>
+                            <li><i class="fas fa-check-circle"></i> Font-size: 12px</li>
+                            <li><i class="fas fa-check-circle"></i> Padding 0.625rem</li>
+                            <li><i class="fas fa-check-circle"></i> Iconos 40px</li>
+                            <li><i class="fas fa-check-circle"></i> Todo apilado verticalmente</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de Breakpoints -->
+            <div class="section">
+                <h2 class="section-title">
+                    <i class="fas fa-chart-bar"></i>
+                    Tabla Completa de Breakpoints
+                </h2>
+
+                <table class="breakpoints-table">
+                    <thead>
+                        <tr>
+                            <th>Dispositivo</th>
+                            <th>Rango de Resolución</th>
+                            <th>Font Size</th>
+                            <th>Grid Columns</th>
+                            <th>Padding</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Desktop Grande</strong></td>
+                            <td>1920px+</td>
+                            <td>17px</td>
+                            <td>4 columnas</td>
+                            <td>3-4rem</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Desktop Estándar</strong></td>
+                            <td>1366px - 1919px</td>
+                            <td>16px</td>
+                            <td>4 columnas</td>
+                            <td>2.5-3rem</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Laptop Compacto</strong></td>
+                            <td>1280px - 1365px</td>
+                            <td>15px</td>
+                            <td>4 columnas</td>
+                            <td>2-2.5rem</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Laptop Pequeño</strong></td>
+                            <td>1024px - 1279px</td>
+                            <td>14px</td>
+                            <td>2 columnas</td>
+                            <td>2rem</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tablet Horizontal</strong></td>
+                            <td>768px - 1023px</td>
+                            <td>14px</td>
+                            <td>2 columnas</td>
+                            <td>1.5rem</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tablet Vertical</strong></td>
+                            <td>600px - 767px</td>
+                            <td>14px</td>
+                            <td>2 columnas</td>
+                            <td>1rem</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Móvil Horizontal</strong></td>
+                            <td>480px - 599px</td>
+                            <td>13px</td>
+                            <td>2 columnas</td>
+                            <td>0.875rem</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Móvil Vertical</strong></td>
+                            <td>375px - 479px</td>
+                            <td>13px</td>
+                            <td>1 columna</td>
+                            <td>0.75rem</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Móvil Pequeño</strong></td>
+                            <td>320px - 374px</td>
+                            <td>12px</td>
+                            <td>1 columna</td>
+                            <td>0.625rem</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- CTA Section -->
+            <div class="cta-section">
+                <h2>🚀 ¡Tu Dashboard Está Listo!</h2>
+                <p>El sistema está completamente optimizado para todos los dispositivos. Prueba redimensionando tu navegador.</p>
+                <div class="cta-buttons">
+                    <a href="http://localhost:5000" class="btn btn-primary">
+                        <i class="fas fa-home"></i>
+                        Ver Dashboard
+                    </a>
+                    <a href="http://localhost:5000/animals" class="btn btn-secondary">
+                        <i class="fas fa-cow"></i>
+                        Ver Animales
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>
+                <i class="fas fa-heart" style="color: #ef4444;"></i> 
+                Sistema Responsive Optimizado por Dispositivo - AgroTrace v3.5
+            </p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✅ Dashboard Responsive Corregido - AgroTrace</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+            color: white;
+            padding: 3rem;
+            text-align: center;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: #10b981;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
+        }
+
+        .success-icon i {
+            font-size: 2.5rem;
+            color: white;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1.125rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 3rem;
+        }
+
+        .section {
+            margin-bottom: 3rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-title i {
+            color: #3b82f6;
+        }
+
+        .fix-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .fix-card {
+            background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .fix-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            border-color: #3b82f6;
+        }
+
+        .fix-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .fix-icon i {
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .fix-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .fix-description {
+            font-size: 0.875rem;
+            color: #6b7280;
+            line-height: 1.6;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-top: 1.5rem;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.875rem;
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+            border: 1px solid #e5e7eb;
+            transition: all 0.2s ease;
+        }
+
+        .feature-item:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+        }
+
+        .check-icon {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .check-icon i {
+            font-size: 0.875rem;
+            color: white;
+        }
+
+        .feature-text {
+            font-size: 0.938rem;
+            color: #1f2937;
+            font-weight: 500;
+        }
+
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .comparison-card {
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 2px solid;
+        }
+
+        .comparison-card.before {
+            background: #fee2e2;
+            border-color: #ef4444;
+        }
+
+        .comparison-card.after {
+            background: #d1fae5;
+            border-color: #10b981;
+        }
+
+        .comparison-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .comparison-card.before .comparison-title {
+            color: #dc2626;
+        }
+
+        .comparison-card.after .comparison-title {
+            color: #059669;
+        }
+
+        .comparison-list {
+            list-style: none;
+        }
+
+        .comparison-list li {
+            padding: 0.5rem 0;
+            font-size: 0.875rem;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .cta-section {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            padding: 3rem;
+            border-radius: 16px;
+            text-align: center;
+            color: white;
+            margin-top: 3rem;
+        }
+
+        .cta-section h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .cta-section p {
+            font-size: 1.125rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 2rem;
+            background: white;
+            color: #3b82f6;
+            font-size: 1.125rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .responsive-demo {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .device-demo {
+            text-align: center;
+        }
+
+        .device-icon {
+            font-size: 3rem;
+            color: #3b82f6;
+            margin-bottom: 0.5rem;
+        }
+
+        .device-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .header {
+                padding: 2rem;
+            }
+
+            h1 {
+                font-size: 1.875rem;
+            }
+
+            .content {
+                padding: 2rem;
+            }
+
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+
+            .fix-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .cta-section {
+                padding: 2rem;
+            }
+
+            .cta-section h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="success-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            <h1>✅ Dashboard Corregido</h1>
+            <p class="subtitle">Todos los problemas de diseño y responsividad han sido solucionados</p>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Problemas Corregidos -->
+            <div class="section">
+                <h2 class="section-title">
+                    <i class="fas fa-wrench"></i>
+                    Problemas Corregidos
+                </h2>
+
+                <div class="fix-grid">
+                    <div class="fix-card">
+                        <div class="fix-icon">
+                            <i class="fas fa-desktop"></i>
+                        </div>
+                        <h3 class="fix-title">Diseño Centrado en PC</h3>
+                        <p class="fix-description">
+                            El contenido ahora tiene un ancho máximo de 1400px y está centrado. 
+                            No ocupa todo el ancho de la pantalla, mejorando la legibilidad.
+                        </p>
+                    </div>
+
+                    <div class="fix-card">
+                        <div class="fix-icon">
+                            <i class="fas fa-mobile-screen-button"></i>
+                        </div>
+                        <h3 class="fix-title">Totalmente Responsive</h3>
+                        <p class="fix-description">
+                            Implementado con CSS Grid y Flexbox. Funciona perfectamente en PC, 
+                            tablets, iPads y móviles con breakpoints específicos.
+                        </p>
+                    </div>
+
+                    <div class="fix-card">
+                        <div class="fix-icon">
+                            <i class="fas fa-table"></i>
+                        </div>
+                        <h3 class="fix-title">Tablas con Fondo Claro</h3>
+                        <p class="fix-description">
+                            Todas las tablas ahora tienen fondo blanco (#ffffff), texto oscuro 
+                            y bordes suaves. Sin temas oscuros forzados.
+                        </p>
+                    </div>
+
+                    <div class="fix-card">
+                        <div class="fix-icon">
+                            <i class="fas fa-bars"></i>
+                        </div>
+                        <h3 class="fix-title">Menú Hamburguesa</h3>
+                        <p class="fix-description">
+                            Sidebar colapsable con botón hamburguesa funcional en pantallas 
+                            pequeñas. Transiciones suaves y overlay activo.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Características Implementadas -->
+            <div class="section">
+                <h2 class="section-title">
+                    <i class="fas fa-star"></i>
+                    Características Implementadas
+                </h2>
+
+                <ul class="feature-list">
+                    <li class="feature-item">
+                        <div class="check-icon"><i class="fas fa-check"></i></div>
+                        <span class="feature-text">Contenido con ancho máximo de 1400px centrado horizontalmente</span>
+                    </li>
+
+                    <li class="feature-item">
+                        <div class="check-icon"><i class="fas fa-check"></i></div>
+                        <span class="feature-text">CSS Grid para tarjetas, gráficas y tablas</span>
+                    </li>
+
+                    <li class="feature-item">
+                        <div class="check-icon"><i class="fas fa-check"></i></div>
+                        <span class="feature-text">Media queries para PC (≥1200px), Tablets (768-1199px) y Móviles (<768px)</span>
+                    </li>
+
+                    <li class="feature-item">
+                        <div class="check-icon"><i class="fas fa-check"></i></div>
+                        <span class="feature-text">PC: 4 columnas | Tablets: 2 columnas | Móviles: 1 columna</span>
+                    </li>
+
+                    <li class="feature-item">
+                        <div class="check-icon"><i class="fas fa-check"></i></div>
+                        <span class="feature-text">Tablas con fondo blanco (#ffffff) y texto oscuro (#1f2937)</span>
+                    </li>
+
+                    <li class="feature-item">
+                        <div class="check-icon"><i class="fas fa-check"></i></div>
+                        <span class="feature-text">Sidebar colapsable con botón hamburguesa en móvil</span>
+                    </li>
+
+                    <li class="feature-item">
+                        <div class="check-icon"><i class="fas fa-check"></i></div>
+                        <span class="feature-text">Tipografía fluida con clamp() para escalado automático</span>
+                    </li>
+
+                    <li class="feature-item">
+                        <div class="check-icon"><i class="fas fa-check"></i></div>
+                        <span class="feature-text">Paddings y márgenes optimizados para cada dispositivo</span>
+                    </li>
+
+                    <li class="feature-item">
+                        <div class="check-icon"><i class="fas fa-check"></i></div>
+                        <span class="feature-text">Paleta de colores: Fondo #f9fafb, Acento #3b82f6, Texto #1f2937</span>
+                    </li>
+
+                    <li class="feature-item">
+                        <div class="check-icon"><i class="fas fa-check"></i></div>
+                        <span class="feature-text">Animaciones suaves y transiciones consistentes</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Comparación Antes/Después -->
+            <div class="section">
+                <h2 class="section-title">
+                    <i class="fas fa-repeat"></i>
+                    Antes vs Después
+                </h2>
+
+                <div class="comparison">
+                    <div class="comparison-card before">
+                        <h3 class="comparison-title">
+                            <i class="fas fa-times-circle"></i>
+                            Problemas Anteriores
+                        </h3>
+                        <ul class="comparison-list">
+                            <li><i class="fas fa-x"></i> Diseño ocupaba todo el ancho</li>
+                            <li><i class="fas fa-x"></i> No responsive en tablets/móviles</li>
+                            <li><i class="fas fa-x"></i> Tablas con fondo oscuro</li>
+                            <li><i class="fas fa-x"></i> Sidebar sin colapsar</li>
+                            <li><i class="fas fa-x"></i> Elementos amontonados</li>
+                            <li><i class="fas fa-x"></i> Texto muy pequeño en móvil</li>
+                        </ul>
+                    </div>
+
+                    <div class="comparison-card after">
+                        <h3 class="comparison-title">
+                            <i class="fas fa-check-circle"></i>
+                            Soluciones Aplicadas
+                        </h3>
+                        <ul class="comparison-list">
+                            <li><i class="fas fa-check"></i> Contenido centrado y limitado</li>
+                            <li><i class="fas fa-check"></i> 100% responsive</li>
+                            <li><i class="fas fa-check"></i> Tablas con fondo claro</li>
+                            <li><i class="fas fa-check"></i> Menú hamburguesa funcional</li>
+                            <li><i class="fas fa-check"></i> Espaciado óptimo</li>
+                            <li><i class="fas fa-check"></i> Tipografía escalable</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dispositivos Compatibles -->
+            <div class="section">
+                <h2 class="section-title">
+                    <i class="fas fa-devices"></i>
+                    Compatible con Todos los Dispositivos
+                </h2>
+
+                <div class="responsive-demo">
+                    <div class="device-demo">
+                        <div class="device-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <div class="device-label">Móviles</div>
+                        <div style="font-size: 0.75rem; color: #9ca3af;">< 768px</div>
+                    </div>
+
+                    <div class="device-demo">
+                        <div class="device-icon">
+                            <i class="fas fa-tablet-alt"></i>
+                        </div>
+                        <div class="device-label">Tablets</div>
+                        <div style="font-size: 0.75rem; color: #9ca3af;">768px - 1023px</div>
+                    </div>
+
+                    <div class="device-demo">
+                        <div class="device-icon">
+                            <i class="fas fa-laptop"></i>
+                        </div>
+                        <div class="device-label">Laptops</div>
+                        <div style="font-size: 0.75rem; color: #9ca3af;">1024px - 1919px</div>
+                    </div>
+
+                    <div class="device-demo">
+                        <div class="device-icon">
+                            <i class="fas fa-desktop"></i>
+                        </div>
+                        <div class="device-label">Desktop</div>
+                        <div style="font-size: 0.75rem; color: #9ca3af;">> 1920px</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA -->
+            <div class="cta-section">
+                <h2>🚀 Dashboard Listo para Usar</h2>
+                <p>El sistema está completamente optimizado y responsive. Prueba redimensionando tu navegador.</p>
+                <a href="http://localhost:5000" class="btn">
+                    <i class="fas fa-rocket"></i>
+                    Ver Dashboard en Acción
+                </a>
+                <p style="margin-top: 1.5rem; font-size: 0.875rem; opacity: 0.8;">
+                    Presiona F12 y usa el modo responsive para simular diferentes dispositivos
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

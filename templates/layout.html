@@ -10,10 +10,11 @@
     <!-- Google Fonts - Inter (Modern & Professional) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
-    <!-- Font Awesome 6.5 -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">    <!-- Font Awesome 6.5 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    
+    <!-- Dashboard Corrected CSS - NUEVO SISTEMA RESPONSIVE -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard-corrected.css') }}">
     
     <!-- Modern Design System CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/modern-design-system.css') }}">
@@ -549,8 +550,7 @@
             </div>
         </main>
     </div>
-    
-    <!-- ========== JAVASCRIPT LIBRARIES ========== -->
+      <!-- ========== JAVASCRIPT LIBRARIES ========== -->
     <!-- jQuery (required for DataTables) -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     
@@ -559,9 +559,11 @@
     
     <!-- DataTables -->
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-    
-    <!-- SweetAlert2 -->
+      <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    
+    <!-- Dashboard Responsive - NUEVO SISTEMA -->
+    <script src="{{ url_for('static', filename='js/dashboard-responsive.js') }}"></script>
     
     <!-- Custom Dashboard JS -->
     <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>

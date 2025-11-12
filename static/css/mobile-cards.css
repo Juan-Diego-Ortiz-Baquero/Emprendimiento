@@ -1,0 +1,560 @@
+/* ===================================================================
+   MOBILE CARD STYLES - Enhanced Design
+   Beautiful card layouts for mobile devices
+   =================================================================== */
+
+/* Card Container */
+.table-card {
+  display: none;
+  padding: 0;
+}
+
+/* Individual Card Item */
+.table-card-item {
+  background: var(--bg-card, white);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 16px;
+  margin-bottom: 1rem;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.table-card-item:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.table-card-item:active {
+  transform: translateY(0);
+}
+
+/* Card Header */
+.table-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem;
+  background: linear-gradient(135deg, var(--bg-tertiary, #f8fafc) 0%, var(--bg-secondary, white) 100%);
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
+  gap: 1rem;
+}
+
+.table-card-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.table-card-title {
+  flex: 1;
+  min-width: 0;
+}
+
+.table-card-name {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text-primary, #0f172a);
+  margin-bottom: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.table-card-subtitle {
+  font-size: 0.75rem;
+  color: var(--text-tertiary, #94a3b8);
+  font-weight: 500;
+}
+
+/* Card Body */
+.table-card-body {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+/* Card Row */
+.table-card-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.625rem 0;
+  gap: 1rem;
+  border-bottom: 1px solid var(--border-light, #f1f5f9);
+}
+
+.table-card-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+/* Card Labels */
+.table-card-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary, #64748b);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+
+.table-card-label i {
+  width: 14px;
+  font-size: 13px;
+  color: var(--primary-color, #667eea);
+  opacity: 0.8;
+}
+
+/* Card Values */
+.table-card-value {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary, #0f172a);
+  text-align: right;
+  word-break: break-word;
+}
+
+/* Card Actions */
+.table-card-actions {
+  display: flex;
+  gap: 0.625rem;
+  padding: 1rem 1.25rem;
+  background: var(--bg-tertiary, #f8fafc);
+  border-top: 1px solid var(--border-color, #e2e8f0);
+}
+
+.table-card-actions .btn {
+  flex: 1;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.813rem;
+  font-weight: 600;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.table-card-actions .btn i {
+  font-size: 14px;
+}
+
+.table-card-actions .btn-outline {
+  background: white;
+  border: 1px solid var(--border-color, #e2e8f0);
+  color: var(--text-primary, #0f172a);
+}
+
+.table-card-actions .btn-outline:hover {
+  background: var(--bg-tertiary, #f8fafc);
+  border-color: var(--primary-color, #667eea);
+  color: var(--primary-color, #667eea);
+}
+
+.table-card-actions .btn-outline:active {
+  transform: scale(0.97);
+}
+
+/* Avatar in Cards */
+.table-card-item .avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: white;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Status Badge in Cards */
+.table-card-header .badge {
+  font-size: 0.688rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 20px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.table-card-header .badge-success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+}
+
+.table-card-header .badge-warning {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+}
+
+.table-card-header .badge-danger {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+}
+
+.table-card-header .badge-info {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+}
+
+/* RFID Tag in Cards */
+.table-card-value[style*="monospace"] {
+  font-family: 'Courier New', Consolas, Monaco, monospace;
+  background: var(--bg-tertiary, #f8fafc);
+  padding: 0.375rem 0.625rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-color, #e2e8f0);
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+/* Enhanced Hover Effects */
+.table-card-item {
+  position: relative;
+  overflow: visible;
+}
+
+.table-card-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+.table-card-item:hover::before {
+  transform: scaleX(1);
+}
+
+/* Loading Skeleton for Cards */
+.table-card-skeleton {
+  padding: 1.25rem;
+}
+
+.skeleton-card-header {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.skeleton-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--bg-tertiary, #f8fafc);
+}
+
+.skeleton-info {
+  flex: 1;
+}
+
+.skeleton-line {
+  height: 12px;
+  background: var(--bg-tertiary, #f8fafc);
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+
+.skeleton-line:last-child {
+  width: 60%;
+}
+
+/* Empty State for Cards */
+.table-card-empty {
+  text-align: center;
+  padding: 3rem 1.5rem;
+}
+
+.table-card-empty-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1.5rem;
+  background: var(--bg-tertiary, #f8fafc);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.table-card-empty-icon i {
+  font-size: 2rem;
+  color: var(--text-tertiary, #94a3b8);
+}
+
+.table-card-empty-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary, #0f172a);
+  margin-bottom: 0.5rem;
+}
+
+.table-card-empty-text {
+  font-size: 0.875rem;
+  color: var(--text-secondary, #64748b);
+  margin-bottom: 1.5rem;
+}
+
+/* ===================================================================
+   RESPONSIVE BREAKPOINTS FOR CARDS
+   =================================================================== */
+
+/* Tablet (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .table-card {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  
+  .table-card-item {
+    margin-bottom: 0;
+  }
+  
+  .table-card-actions {
+    flex-direction: column;
+    padding: 0.875rem;
+  }
+  
+  .table-card-actions .btn {
+    width: 100%;
+  }
+}
+
+/* Mobile Landscape (640px - 767px) */
+@media (min-width: 640px) and (max-width: 767px) {
+  .table-card-item {
+    border-radius: 14px;
+  }
+  
+  .table-card-header {
+    padding: 1.125rem;
+  }
+  
+  .table-card-body {
+    padding: 1.125rem;
+  }
+  
+  .table-card-actions {
+    padding: 0.875rem 1.125rem;
+  }
+}
+
+/* Mobile Portrait (< 640px) */
+@media (max-width: 639px) {
+  .table-card-item {
+    border-radius: 12px;
+    margin-bottom: 0.875rem;
+  }
+  
+  .table-card-header {
+    padding: 1rem;
+    flex-wrap: wrap;
+  }
+  
+  .table-card-body {
+    padding: 1rem;
+    gap: 0.75rem;
+  }
+  
+  .table-card-row {
+    padding: 0.5rem 0;
+    gap: 0.75rem;
+  }
+  
+  .table-card-label {
+    font-size: 0.688rem;
+  }
+  
+  .table-card-value {
+    font-size: 0.813rem;
+  }
+  
+  .table-card-actions {
+    padding: 0.875rem 1rem;
+    gap: 0.5rem;
+  }
+  
+  .table-card-actions .btn {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+  }
+  
+  .table-card-item .avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+}
+
+/* Extra Small Devices (< 400px) */
+@media (max-width: 399px) {
+  .table-card-item {
+    border-radius: 10px;
+    margin-bottom: 0.75rem;
+  }
+  
+  .table-card-header {
+    padding: 0.875rem;
+  }
+  
+  .table-card-body {
+    padding: 0.875rem;
+  }
+  
+  .table-card-actions {
+    padding: 0.75rem 0.875rem;
+    flex-wrap: wrap;
+  }
+  
+  .table-card-actions .btn {
+    flex: 1 1 100%;
+    margin-bottom: 0.375rem;
+  }
+  
+  .table-card-actions .btn:last-child {
+    margin-bottom: 0;
+  }
+  
+  .table-card-item .avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 0.875rem;
+  }
+  
+  .table-card-name {
+    font-size: 0.938rem;
+  }
+}
+
+/* ===================================================================
+   ANIMATIONS FOR CARDS
+   =================================================================== */
+
+@keyframes cardSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.table-card-item {
+  animation: cardSlideIn 0.3s ease-out;
+  animation-fill-mode: both;
+}
+
+.table-card-item:nth-child(1) { animation-delay: 0.05s; }
+.table-card-item:nth-child(2) { animation-delay: 0.1s; }
+.table-card-item:nth-child(3) { animation-delay: 0.15s; }
+.table-card-item:nth-child(4) { animation-delay: 0.2s; }
+.table-card-item:nth-child(5) { animation-delay: 0.25s; }
+
+/* Disable animations for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .table-card-item {
+    animation: none;
+  }
+  
+  .table-card-item:hover {
+    transform: none;
+  }
+}
+
+/* ===================================================================
+   DARK MODE SUPPORT FOR CARDS
+   =================================================================== */
+
+@media (prefers-color-scheme: dark) {
+  .table-card-item {
+    background: #1e293b;
+    border-color: #334155;
+  }
+  
+  .table-card-header {
+    background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
+    border-bottom-color: #334155;
+  }
+  
+  .table-card-actions {
+    background: #0f172a;
+    border-top-color: #334155;
+  }
+  
+  .table-card-actions .btn-outline {
+    background: #1e293b;
+    border-color: #334155;
+    color: #f8fafc;
+  }
+  
+  .table-card-actions .btn-outline:hover {
+    background: #334155;
+    border-color: #667eea;
+  }
+  
+  .table-card-row {
+    border-bottom-color: #334155;
+  }
+  
+  .table-card-value[style*="monospace"] {
+    background: #0f172a;
+    border-color: #334155;
+  }
+}
+
+/* ===================================================================
+   ACCESSIBILITY IMPROVEMENTS FOR CARDS
+   =================================================================== */
+
+/* Focus styles for keyboard navigation */
+.table-card-actions .btn:focus-visible {
+  outline: 2px solid var(--primary-color, #667eea);
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .table-card-item {
+    border-width: 2px;
+  }
+  
+  .table-card-header {
+    border-bottom-width: 2px;
+  }
+  
+  .table-card-actions {
+    border-top-width: 2px;
+  }
+  
+  .table-card-actions .btn-outline {
+    border-width: 2px;
+  }
+}
+
+/* Touch target size for better accessibility */
+@media (hover: none) and (pointer: coarse) {
+  .table-card-actions .btn {
+    min-height: 44px;
+    padding: 0.75rem 1rem;
+  }
+}

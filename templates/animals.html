@@ -163,9 +163,7 @@
             <div v-if="loading" style="padding: 3rem; text-align: center;">
                 <i class="fas fa-spinner fa-spin" style="font-size: 48px; color: var(--color-primary); margin-bottom: 1rem;"></i>
                 <p style="color: var(--color-text-secondary);">Cargando animales...</p>
-            </div>
-
-            <!-- Table -->
+            </div>            <!-- Desktop Table View -->
             <div v-else-if="!isEmpty" class="table-responsive">
                 <table class="table" style="margin: 0;">
                     <thead>
@@ -228,9 +226,127 @@
                                     </button>
                                 </div>
                             </td>
-                        </tr>
-                    </tbody>
+                        </tr>                    </tbody>
                 </table>
+            </div>
+
+            <!-- Mobile Card View -->
+            <div v-else-if="!isEmpty" class="table-card">
+                <div 
+                    v-for="animal in paginatedAnimals" 
+                    :key="'card-' + animal.id"
+                    class="table-card-item"
+                >
+                    <div class="table-card-header">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <div 
+                                class="avatar"
+                                :style="{ background: animal.avatarColor }"
+                            >
+                                [[ animal.name.charAt(0) ]]
+                            </div>
+                            <div>
+                                <div style="font-weight: 600; font-size: 0.938rem; color: var(--text-primary);">
+                                    [[ animal.name ]]
+                                </div>
+                                <div style="font-size: 0.75rem; color: var(--text-tertiary);">
+                                    [[ animal.code ]]
+                                </div>
+                            </div>
+                        </div>
+                        <span 
+                            class="badge"
+                            :class="'badge-' + animal.status.class"
+                        >
+                            [[ animal.status.name ]]
+                        </span>
+                    </div>
+                    
+                    <div class="table-card-body">
+                        <div class="table-card-row">
+                            <span class="table-card-label">
+                                <i class="fas fa-wifi"></i> RFID Tag
+                            </span>
+                            <span class="table-card-value" style="font-family: monospace; font-size: 0.813rem;">
+                                [[ animal.rfid ]]
+                            </span>
+                        </div>
+                        
+                        <div class="table-card-row">
+                            <span class="table-card-label">
+                                <i class="fas fa-dna"></i> Raza
+                            </span>
+                            <span class="table-card-value">
+                                [[ animal.breed ]]
+                            </span>
+                        </div>
+                        
+                        <div class="table-card-row">
+                            <span class="table-card-label">
+                                <i class="fas fa-calendar"></i> Edad
+                            </span>
+                            <span class="table-card-value">
+                                [[ animal.age_display ]]
+                            </span>
+                        </div>
+                        
+                        <div class="table-card-row">
+                            <span class="table-card-label">
+                                <i class="fas fa-weight"></i> Peso
+                            </span>
+                            <span class="table-card-value">
+                                [[ animal.weight ]] kg
+                            </span>
+                        </div>
+                        
+                        <div class="table-card-row">
+                            <span class="table-card-label">
+                                <i class="fas fa-map-marker-alt"></i> Ubicación
+                            </span>
+                            <span class="table-card-value">
+                                [[ animal.location ]]
+                            </span>
+                        </div>
+                        
+                        <div class="table-card-row">
+                            <span class="table-card-label">
+                                <i class="fas fa-clock"></i> Último escaneo
+                            </span>
+                            <span class="table-card-value">
+                                [[ animal.last_scan_display ]]
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="table-card-actions">
+                        <button 
+                            @click="viewAnimal(animal)"
+                            class="btn btn-outline"
+                            style="flex: 1;"
+                            title="Ver detalles"
+                        >
+                            <i class="fas fa-eye"></i>
+                            Ver
+                        </button>
+                        <button 
+                            @click="editAnimal(animal)"
+                            class="btn btn-outline"
+                            style="flex: 1;"
+                            title="Editar"
+                        >
+                            <i class="fas fa-edit"></i>
+                            Editar
+                        </button>
+                        <button 
+                            @click="deleteAnimal(animal)"
+                            class="btn btn-outline"
+                            style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border-color: transparent;"
+                            title="Eliminar"
+                        >
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <!-- Empty State -->
@@ -939,16 +1055,52 @@ createApp({
             };
             return labels[statusClass] || 'Desconocido';
         },
-        
-        getRandomColor() {
+          getRandomColor() {
             const colors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6', '#F97316'];
             return colors[Math.floor(Math.random() * colors.length)];
+        },
+        
+        setupResponsiveViews() {
+            // Toggle between table and card view based on viewport
+            const updateView = () => {
+                const isMobile = window.innerWidth < 768;
+                const tableView = document.querySelector('.table-responsive');
+                const cardView = document.querySelector('.table-card');
+                
+                if (tableView && cardView) {
+                    if (isMobile) {
+                        tableView.style.display = 'none';
+                        cardView.style.display = 'block';
+                    } else {
+                        tableView.style.display = 'block';
+                        cardView.style.display = 'none';
+                    }
+                }
+            };
+            
+            // Initial call
+            updateView();
+            
+            // Update on resize
+            let resizeTimer;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(updateView, 250);
+            });
         }
     },
-    
-    mounted() {
+      mounted() {
         this.filterAnimals();
+        
+        // Initialize responsive table handler
+        this.$nextTick(() => {
+            this.setupResponsiveViews();
+        });
     }
 }).mount('#animalsApp');
 </script>
+
+<!-- Responsive Components Script -->
+<script src="{{ url_for('static', filename='js/vue-responsive-components.js') }}"></script>
+
 {% endblock %}
